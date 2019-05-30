@@ -6,6 +6,20 @@
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam);
 
+BOOL EnableCloseButton(const HWND hwnd, const BOOL bState)
+{
+	HMENU	hMenu;
+	UINT	dwExtra;
+
+	if (hwnd == NULL || (hMenu = GetSystemMenu(hwnd, FALSE)) == NULL)
+	{
+		return FALSE;
+	}
+
+	dwExtra = bState ? MF_ENABLED : (MF_DISABLED | MF_GRAYED);
+	return EnableMenuItem(hMenu, SC_CLOSE, MF_BYCOMMAND | dwExtra) != -1;
+}
+
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCmdLine, _In_ int nCmdShow)
 {
 	// Registration
@@ -26,6 +40,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCm
 	{
 		return 0;
 	}
+
+	EnableCloseButton(hwnd, FALSE);
 
 	ShowWindow(hwnd, nCmdShow);
 
