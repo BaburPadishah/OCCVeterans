@@ -21,16 +21,15 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCm
 	RegisterClass(&wc);
 
 	// Window Creation
-	HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"OCC Student Veterans Association Sign-In", WS_SYSMENU | !WS_MAXIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT, 500, 200, NULL, NULL, hInstance, NULL);
+	HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"OCC Student Veterans Association Sign-In", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 500, 200, NULL, NULL, hInstance, NULL);
 
 	if (hwnd == NULL)
 	{
 		return 0;
 	}
 
-	//Gray out Close button
-	HMENU hMenu = GetSystemMenu(hwnd, FALSE);
-	EnableMenuItem(hMenu, SC_CLOSE, MF_GRAYED);
+	// Remove menu and disable dragging
+	SetWindowLongPtr(hwnd, GWL_STYLE, 0);
 
 	// Display Window
 	ShowWindow(hwnd, nCmdShow);
