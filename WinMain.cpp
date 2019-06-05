@@ -4,12 +4,23 @@
 
 #include <windows.h>
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam);
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam); 
+HWND AddControls(HWND); // Creates the static and edit controls
 
-int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCmdLine, _In_ int nCmdShow)
+
+//constants
+const int WIN_WIDTH = 400;
+const int WIN_HEIGHT = 200;
+const int STATIC_WIDTH = 190;
+const int STATIC_HEIGHT = 20;
+const int EDIT_WIDTH = 100;
+const int EDIT_HEIGHT = 20;
+
+int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, 
+	_In_ PWSTR pCmdLine, _In_ int nCmdShow)
 {
-	// Registration
-	const wchar_t CLASS_NAME[] = L"OCC Veterans' Club Sign-In";
+	// Window Class Registration
+	const wchar_t CLASS_NAME[] = L"OCC Student Veterans Association Sign-In";
 
 	WNDCLASS wc = { };
 
@@ -19,14 +30,28 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCm
 
 	RegisterClass(&wc);
 
-	// Window Creation
-	HWND hwnd = CreateWindowEx(0, CLASS_NAME, L"OCC Veterans' Club Sign-In", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+	// Get screen resolution
+	int nScreenWidth = GetSystemMetrics(SM_CXSCREEN);
+	int nScreenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-	if (hwnd == NULL)
+	// Window Creation
+	HWND hwnd = CreateWindowEx(0, CLASS_NAME, 
+		L"OCC Student Veterans Association Sign-In", 0,
+		nScreenWidth / 2 - WIN_WIDTH / 2, nScreenHeight / 2 - WIN_HEIGHT / 2,
+		WIN_WIDTH, WIN_HEIGHT, HWND_DESKTOP, NULL, hInstance, NULL);
+
+	// store handle to edit control
+	HWND hEdit = AddControls(hwnd); 
+
+	if (hwnd == NULL || hEdit == NULL)
 	{
 		return 0;
 	}
 
+	// Remove menu and disable dragging
+	SetWindowLongPtr(hwnd, GWL_STYLE, WS_BORDER);
+
+	// Display Window
 	ShowWindow(hwnd, nCmdShow);
 
 	// Message Loop
@@ -42,19 +67,33 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ PWSTR pCm
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
-	{
+	{	
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
+		break;
 
-	case WM_PAINT:
+	/*case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hwnd, &ps);
 			FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
 			EndPaint(hwnd, &ps);
 		}
-	return 0;
+		return 0;
+		break;*/	
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+// Adds static and edit controls
+HWND AddControls(HWND hwnd)
+{
+	CreateWindow(L"STATIC", L"Please enter your ID below:",
+		WS_VISIBLE | WS_CHILD | SS_CENTER, WIN_WIDTH / 2 - STATIC_WIDTH / 2, 
+		WIN_HEIGHT / 3, STATIC_WIDTH, STATIC_HEIGHT, hwnd, NULL, NULL, NULL);
+
+	return CreateWindow(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 
+		WIN_WIDTH / 2 - EDIT_WIDTH / 2, WIN_HEIGHT / 2, EDIT_WIDTH, 
+		EDIT_HEIGHT, hwnd, NULL, NULL, NULL);
 }
