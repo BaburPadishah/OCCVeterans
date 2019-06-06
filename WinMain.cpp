@@ -67,7 +67,22 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
-	{	
+	{
+	case WM_KEYDOWN:
+		if (wParam == VK_RETURN)
+		{
+			INT editid = 0;
+			INT editlength = 0;
+
+			HWND hEdit = GetDlgItem(hwnd, editid); 
+			editlength = GetWindowTextLength(hEdit);
+			TCHAR buff[1024];
+			GetWindowText(hEdit, buff, 1024);
+			MessageBox(hwnd, buff, L"edit text", 0);
+		}
+		return 0;
+		break;
+
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
