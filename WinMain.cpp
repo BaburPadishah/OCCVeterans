@@ -93,8 +93,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if (gwtSuccess)
 			{
 				MessageBox(hwnd, buffer, L"Success", MB_OK);
+				// TO DO: check if buffer matches an admin pass or known ID
+				// if admin pass: display child window that allows member search
+				// if known ID: display a static control for five seconds to confirm sign in
+					// format: [LAST_NAME], [FIRST_NAME] signed in at [CURRENT_TIME]
+				// if unknown ID: display child window that allows user to enter info
 			}
-			else
+			else 
 			{
 				MessageBox(hwnd, L"Blank input or invalid edit handle.", L"Error", MB_OK);
 			}
