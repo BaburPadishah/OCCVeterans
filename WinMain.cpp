@@ -53,7 +53,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
         hInstance,
         NULL);
 
-    if (hwnd == NULL || hEdit == NULL)
+    if (hwnd == NULL)
     {
         return 0;
     }
