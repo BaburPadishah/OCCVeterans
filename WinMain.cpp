@@ -45,7 +45,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
 		nScreenWidth / 2 - WIN_WIDTH / 2, nScreenHeight / 2 - WIN_HEIGHT / 2,
 		WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
 
-	if (hwnd == NULL || hEdit == NULL)
+	if (hwnd == NULL)
 	{
 		return 0;
 	}
@@ -81,10 +81,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	
-	case WM_COMMAND	:
-		switch (LOWORD(wParam))
+	case WM_COMMAND:
+		if (wParam == 3)
 		{
-		case 3:
 			int gwtSuccess = 0;
 			int len = GetWindowTextLength(hEdit);
 			buffer = new TCHAR[len + 1];
@@ -98,12 +97,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				MessageBox(hwnd, L"Blank input or invalid edit handle.", L"Error", MB_OK);
 			}
-			break;
 		}
 		return 0;
 		break;
 
 	case WM_DESTROY:
+		delete[] buffer;
 		PostQuitMessage(0);
 		return 0;
 		break;
