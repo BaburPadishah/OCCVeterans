@@ -5,6 +5,7 @@
 #include <windows.h>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam); 
+LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 HWND AddControls(HWND);
 
 // Global Variables
@@ -70,6 +71,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 	{
 		hEdit = AddControls(hwnd);
+		wpOrigEditProc = (WNDPROC)SetWindowLong(hEdit, GWL_WNDPROC, (LONG)EditSubclassProc);
 		break;
 	}
 
@@ -103,10 +105,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				MessageBox(hwnd, L"Blank input or invalid edit handle.", L"Error", MB_OK);
 			}
+			SetWindowLong(hEdit, GWL_WNDPROC, (LONG)wpOrigEditProc);
 			break;
 		}
 		return 0;
 		break;
+			
+	case WM_CLOSE:
+		if (MessageBox(hwnd, L"Are you sure you want to quit?", L"Sign-in", MB_OKCANCEL) == IDOK)
+			DestroyWindow(hwnd);
+		// Else: User canceled. Do nothing.
+		return 0;
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -141,4 +150,17 @@ HWND AddControls(HWND hwnd)
 	return CreateWindow(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL, 
 		WIN_WIDTH / 2 - EDIT_WIDTH / 2, WIN_HEIGHT / 4, EDIT_WIDTH, 
 		EDIT_HEIGHT, hwnd, (HMENU)2, NULL, NULL);
+}
+
+// Subclass the edit control
+LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if (uMsg == WM_KEYDOWN)
+	{
+		if (wParam == VK_RETURN)
+		{
+			checkIdNum(hwnd, wParam);
+		}
+	}
+	return CallWindowProc(wpOrigEditProc, hwnd, uMsg, wParam, lParam);
 }
