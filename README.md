@@ -8,7 +8,7 @@ If their ID is not detected, another window appears which prompts the user for t
 If a user enters in an administrator password, another window appears which allows the user to search for members by any or all of the following: name, ID, branch, arrival time.
 
 TO DO:
-1) Map the enter key to the sign in button
+~~1) Map the enter key to the sign in button~~
 2) create a message that appears for five seconds after a successful sign in
 3) communication with the SQL database
 4) create child window that allows a new member to register their name and branch
