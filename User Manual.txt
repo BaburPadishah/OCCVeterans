@@ -1,0 +1,73 @@
+OCC Student Veterans Association Sign-In
+
+User Manual
+
+
+TABLE OF CONTENTS
+
+1. Starting the Program
+2. Register as a Member
+3. Signing In
+4. Searching Records as an Administrator
+5. Quitting the Program
+
+
+-----------------------
+1. STARTING THE PROGRAM
+-----------------------
+
+Double-click the file named "Sign_In_Program.exe". 
+The main window will be displayed, which contains:
+	1. Directions for the user to enter their student ID
+	2. The text box which allows users to enter their ID
+	3. A button that can be clicked to sign in
+
+
+-----------------------
+2. REGISTER AS A MEMBER
+-----------------------
+
+Once the program is started, enter your student ID and press ENTER or
+click the "Sign-In" button.The program will notify you that your ID was 
+not found, and ask you if you wish to register as a new member.
+Clicking "Yes" will display the New Member Registration window,
+where you must enter your first name, last name, and your branch.
+When you are finished, click the "Register and Sign In" button at
+the bottom of the window.
+
+
+-------------
+3. SIGNING IN
+-------------
+
+To sign in, enter your student ID into the text box, and either press ENTER
+or click the "Sign-In" button. The program will either confirm your sign in
+if it recognizes your ID, or ask you if you wish to register as a new member
+if it does not. 
+
+
+----------------------------------------
+4. SEARCHING RECORDS AS AN ADMINISTRATOR
+----------------------------------------
+
+Enter the administrator password into the main window's text box. The 
+Member Search window will be displayed, containing two lists.
+
+     1. Member List: To the left is a list of all current members,organized 
+	alphabetically by name. By clicking the buttons at the top of the
+	list, you can choose to sort by branch or student ID.
+     2. Records List: To the right is a list of all sign ins that have 
+	occurred in the selected time interval. Use the buttons above the
+	list to see sign ins during the past day, past week, or past month,
+	or enter your own time interval using the text box provided.
+
+When finished searching, press the "Finish" button at the bottom of the 
+window.
+
+
+-----------------------
+5. QUITTING THE PROGRAM
+-----------------------
+
+Type "Close" in the text box, and either press ENTER or the Sign-In button. 
+When the program asks for confirmation, click "Yes".

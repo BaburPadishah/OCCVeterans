@@ -1,0 +1,17 @@
+Development Timeline (Add any new entries above the older ones)
+
+June 25th, 2019
+
+	NEW FEATURES:
+		Completed main window
+		Disabled maximize, minimize and close buttons
+		Disabled dragging
+		Placed prompt, text field, and sign-in button
+		Typing "Close" into the text box quits the program
+		Created a User Manual
+
+	CHANGES:
+		The controls are now referred to by name instead of numbers
+
+	FIXES:
+		Enter key correctly captures user input
