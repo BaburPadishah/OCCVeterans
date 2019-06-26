@@ -6,11 +6,13 @@
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam); 
 LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void checkIdNum(HWND hwnd, WPARAM wParam);
 HWND AddControls(HWND);
 
 // Global Variables
 HWND hEdit;
 TCHAR* buffer;
+WNDPROC wpOrigEditProc;
 
 // Global Constants
 const int WIN_WIDTH = 300;
@@ -82,32 +84,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 		break;
-	
+			
+	case WM_KEYDOWN:	
+		checkIdNum(hwnd, wParam);
+		return 0;
+		break;
+			
 	case WM_COMMAND	:
-		switch (LOWORD(wParam))
-		{
-		case 3:
-			int gwtSuccess = 0;
-			int len = GetWindowTextLength(hEdit);
-			buffer = new TCHAR[len + 1];
-			gwtSuccess = GetWindowText(hEdit, buffer, len + 1);
-
-			if (gwtSuccess)
-			{
-				MessageBox(hwnd, buffer, L"Success", MB_OK);
-				// TO DO: check if buffer matches an admin pass or known ID
-				// if admin pass: display child window that allows member search
-				// if known ID: display a static control for five seconds to confirm sign in
-					// format: [LAST_NAME], [FIRST_NAME] signed in at [CURRENT_TIME]
-				// if unknown ID: display child window that allows user to enter info
-			}
-			else 
-			{
-				MessageBox(hwnd, L"Blank input or invalid edit handle.", L"Error", MB_OK);
-			}
-			SetWindowLong(hEdit, GWL_WNDPROC, (LONG)wpOrigEditProc);
-			break;
-		}
+		checkIdNum(hwnd, wParam);
 		return 0;
 		break;
 			
@@ -150,6 +134,34 @@ HWND AddControls(HWND hwnd)
 	return CreateWindow(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL, 
 		WIN_WIDTH / 2 - EDIT_WIDTH / 2, WIN_HEIGHT / 4, EDIT_WIDTH, 
 		EDIT_HEIGHT, hwnd, (HMENU)2, NULL, NULL);
+}
+
+//Verifys that the ID number given is a valid one
+void checkIdNum(HWND hwnd, WPARAM wParam)
+{
+	if (wParam == 3 || wParam == VK_RETURN)
+	{
+		int len = GetWindowTextLength(hEdit);
+		entry = new TCHAR[len + 1];
+
+		if (GetWindowText(hEdit, entry, len + 1))
+		{
+			//If the user enters Close into the text field it will end the program
+			if (wcscmp(L"Close", entry) == 0)
+			{
+				//checks if the current handle window is the main, then destroys it
+				if (GetParent(hwnd) == NULL)
+					DestroyWindow(hwnd);
+				else
+					DestroyWindow(GetParent(hwnd));
+			}
+			else
+				MessageBox(hwnd, entry, L"Success", MB_OK);
+		}
+		else
+			MessageBox(hwnd, L"Blank input or invalid edit handle.", L"Error", MB_OK);
+
+	}
 }
 
 // Subclass the edit control
