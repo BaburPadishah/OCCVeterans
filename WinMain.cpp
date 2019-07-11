@@ -184,7 +184,7 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 				else
 				{
 					res = mysql_store_result(&conn);
-					if (res == NULL)
+					if (res->row_count == 0)
 					{
 						MessageBox(hwnd, L"Result not found.", L"Failure", MB_OK);
 					}
