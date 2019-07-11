@@ -14,6 +14,8 @@ HWND AddControls(HWND);
 HWND hEdit;
 TCHAR* buffer;
 WNDPROC wpOrigEditProc;
+MYSQL conn;
+MYSQL_RES* res;
 
 // Global Constants
 const int WIN_WIDTH = 300;
@@ -56,25 +58,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
 		return 0;
 	}
 
-	// Display Window
+// Display Window
 	ShowWindow(hwnd, nCmdShow);
-
-	// Connect to database
-	MYSQL* conn;
-	MYSQL_ROW row;
-	MYSQL_RES res;
-	conn = mysql_init(0);
-
-	conn = mysql_real_connect(conn, "localhost", "root", "Garamantes45!", "occ_veteran_club", 3306, NULL, 0);
-
-	if (conn)
-	{
-		MessageBox(hwnd, L"Connection Successful", L"Sign-in", MB_OK);
-	}
-	else
-	{
-		MessageBox(hwnd, L"Connection Failed", L"Sign-in", MB_OK);
-	}
 
 	// Message Loop
 	MSG msg = { };
@@ -94,6 +79,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 	{
+		if (mysql_init(&conn) == NULL ||
+			!mysql_real_connect(&conn, "localhost", "root", "Garamantes45!", "occ_veteran_club", 3306, NULL, 0))
+		{
+			MessageBox(hwnd, L"Connection Failed", L"Sign-in", MB_OK);
+			return 0;
+		}
 		hEdit = AddControls(hwnd);
 		wpOrigEditProc = (WNDPROC)SetWindowLong(hEdit, GWLP_WNDPROC, (LONG)EditSubclassProc);
 		break;
@@ -119,7 +110,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_CLOSE:
 		if (MessageBox(hwnd, L"Are you sure you want to quit?", L"Sign-in", MB_OKCANCEL) == IDOK)
+		{
+			mysql_close(&conn);
 			DestroyWindow(hwnd);
+		}
 		// Else: User canceled. Do nothing.
 		return 0;
 
@@ -177,8 +171,31 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 				else
 					DestroyWindow(GetParent(hwnd));
 			}
-			else
-				MessageBox(hwnd, buffer, L"Success", MB_OK);
+			else // user has entered an ID number
+			{
+				char query[41] = "SELECT * FROM members WHERE id = ";
+				char buffer1[10];
+				wcstombs_s(NULL, buffer1, buffer, wcslen(buffer));
+				strcat_s(query, buffer1);
+				if (mysql_query(&conn, query))
+				{
+					MessageBox(hwnd, L"mysql_query encountered an error.", L"Failure", MB_OK);
+				}
+				else
+				{
+					res = mysql_store_result(&conn);
+					if (res == NULL)
+					{
+						MessageBox(hwnd, L"Result not found.", L"Failure", MB_OK);
+					}
+					else
+					{
+						int fieldNum = mysql_num_fields(res);
+						MessageBox(hwnd, L"Result found.", L"Success", MB_OK);
+					}
+					mysql_free_result(res);
+				}
+			}
 		}
 		else
 			MessageBox(hwnd, L"Blank input or invalid edit handle.", L"Error", MB_OK);
