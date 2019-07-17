@@ -14,9 +14,9 @@ void AddControls(HWND);
 std::string connAndQuery(LPSTR data);
 
 // Global Variables
-HWND hEdit, hBtn;
+HWND hEdit;
 WNDPROC wpOrigEditProc;
-int qstate;
+
 
 // Global Constants
 const int WIN_WIDTH = 300;
@@ -50,17 +50,17 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
 
 	// Window Creation
 	HWND hwnd = CreateWindowEx(
-		0, 
+		0,
 		CLASS_NAME,
-		L"OCC Student Veterans Association Sign-In", 
+		L"OCC Student Veterans Association Sign-In",
 		NULL,
-		nScreenWidth / 2 - WIN_WIDTH / 2, 
+		nScreenWidth / 2 - WIN_WIDTH / 2,
 		nScreenHeight / 2 - WIN_HEIGHT / 2,
-		WIN_WIDTH, 
-		WIN_HEIGHT, 
-		NULL, 
-		NULL, 
-		hInstance, 
+		WIN_WIDTH,
+		WIN_HEIGHT,
+		NULL,
+		NULL,
+		hInstance,
 		NULL
 	);
 
@@ -143,40 +143,40 @@ void AddControls(HWND hwnd)
 {
 	CreateWindow(L"STATIC",
 		L"Please enter your ID:",
-		WS_VISIBLE | WS_CHILD | SS_CENTER, 
+		WS_VISIBLE | WS_CHILD | SS_CENTER,
 		WIN_WIDTH / 2 - STATIC_WIDTH / 2,
-		WIN_HEIGHT / 10, STATIC_WIDTH, 
-		STATIC_HEIGHT, 
-		hwnd, 
-		(HMENU)STATIC, 
-		NULL, 
+		WIN_HEIGHT / 10, STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)STATIC,
+		NULL,
 		NULL
 	);
 
-	hBtn = CreateWindow(
-		L"BUTTON", 
+	CreateWindow(
+		L"BUTTON",
 		L"Sign In",
 		WS_VISIBLE | WS_BORDER | WS_CHILD,
 		WIN_WIDTH / 2 - BUTTON_WIDTH / 2,
-		WIN_HEIGHT / 2, 
-		BUTTON_WIDTH, 
-		BUTTON_HEIGHT, 
-		hwnd, 
-		(HMENU)BUTTON, 
-		NULL, 
+		WIN_HEIGHT / 2,
+		BUTTON_WIDTH,
+		BUTTON_HEIGHT,
+		hwnd,
+		(HMENU)BUTTON,
+		NULL,
 		NULL
 	);
 
 	hEdit = CreateWindow(
-		L"EDIT", 
-		L"", 
+		L"EDIT",
+		L"",
 		WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
-		WIN_WIDTH / 2 - EDIT_WIDTH / 2, 
+		WIN_WIDTH / 2 - EDIT_WIDTH / 2,
 		WIN_HEIGHT / 4, EDIT_WIDTH,
-		EDIT_HEIGHT, 
-		hwnd, 
-		(HMENU)EDIT, 
-		NULL, 
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)EDIT,
+		NULL,
 		NULL
 	);
 }
@@ -237,6 +237,7 @@ std::string connAndQuery(LPSTR data)
 	MYSQL* conn;
 	MYSQL_ROW row;
 	MYSQL_RES* res;
+	int qstate;
 	conn = mysql_init(0);
 
 	conn = mysql_real_connect(conn, "localhost", "root", "Garamantes45!", "occ_veteran_club", 3306, nullptr, 0);
