@@ -4,18 +4,19 @@
 
 #include <windows.h>
 #include <mysql.h>
+#include <string>
+#include <iostream>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam);
 LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void checkIdNum(HWND hwnd, WPARAM wParam);
-HWND AddControls(HWND);
+void AddControls(HWND);
+std::string connAndQuery(LPSTR data);
 
 // Global Variables
-HWND hEdit;
-TCHAR* buffer;
+HWND hEdit, hBtn;
 WNDPROC wpOrigEditProc;
-MYSQL conn;
-MYSQL_RES* res;
+int qstate;
 
 // Global Constants
 const int WIN_WIDTH = 300;
@@ -48,17 +49,27 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
 	int nScreenHeight = GetSystemMetrics(SM_CYSCREEN);
 
 	// Window Creation
-	HWND hwnd = CreateWindowEx(0, CLASS_NAME,
-		L"OCC Student Veterans Association Sign-In", NULL,
-		nScreenWidth / 2 - WIN_WIDTH / 2, nScreenHeight / 2 - WIN_HEIGHT / 2,
-		WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	HWND hwnd = CreateWindowEx(
+		0, 
+		CLASS_NAME,
+		L"OCC Student Veterans Association Sign-In", 
+		NULL,
+		nScreenWidth / 2 - WIN_WIDTH / 2, 
+		nScreenHeight / 2 - WIN_HEIGHT / 2,
+		WIN_WIDTH, 
+		WIN_HEIGHT, 
+		NULL, 
+		NULL, 
+		hInstance, 
+		NULL
+	);
 
 	if (hwnd == NULL)
 	{
 		return 0;
 	}
 
-// Display Window
+	// Display Window
 	ShowWindow(hwnd, nCmdShow);
 
 	// Message Loop
@@ -70,7 +81,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
 	}
 
 	return 0;
-
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -79,14 +89,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 	{
-		if (mysql_init(&conn) == NULL ||
-			!mysql_real_connect(&conn, "localhost", "root", "Garamantes45!", "occ_veteran_club", 3306, NULL, 0))
-		{
-			MessageBox(hwnd, L"Connection Failed", L"Sign-in", MB_OK);
-			return 0;
-		}
-		hEdit = AddControls(hwnd);
-		wpOrigEditProc = (WNDPROC)SetWindowLong(hEdit, GWLP_WNDPROC, (LONG)EditSubclassProc);
+		AddControls(hwnd);
+		wpOrigEditProc = (WNDPROC)SetWindowLongPtr(hEdit, GWLP_WNDPROC, (LONG_PTR)EditSubclassProc);
 		break;
 	}
 
@@ -111,7 +115,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CLOSE:
 		if (MessageBox(hwnd, L"Are you sure you want to quit?", L"Sign-in", MB_OKCANCEL) == IDOK)
 		{
-			mysql_close(&conn);
 			DestroyWindow(hwnd);
 		}
 		// Else: User canceled. Do nothing.
@@ -136,20 +139,46 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 // Adds button and static/edit controls
-HWND AddControls(HWND hwnd)
+void AddControls(HWND hwnd)
 {
-	CreateWindow(L"STATIC", L"Please enter your ID:",
-		WS_VISIBLE | WS_CHILD | SS_CENTER, WIN_WIDTH / 2 - STATIC_WIDTH / 2,
-		WIN_HEIGHT / 10, STATIC_WIDTH, STATIC_HEIGHT, hwnd, (HMENU)STATIC, NULL, NULL);
+	CreateWindow(L"STATIC",
+		L"Please enter your ID:",
+		WS_VISIBLE | WS_CHILD | SS_CENTER, 
+		WIN_WIDTH / 2 - STATIC_WIDTH / 2,
+		WIN_HEIGHT / 10, STATIC_WIDTH, 
+		STATIC_HEIGHT, 
+		hwnd, 
+		(HMENU)STATIC, 
+		NULL, 
+		NULL
+	);
 
-	CreateWindow(L"BUTTON", L"Sign In",
+	hBtn = CreateWindow(
+		L"BUTTON", 
+		L"Sign In",
 		WS_VISIBLE | WS_BORDER | WS_CHILD,
 		WIN_WIDTH / 2 - BUTTON_WIDTH / 2,
-		WIN_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT, hwnd, (HMENU)BUTTON, NULL, NULL);
+		WIN_HEIGHT / 2, 
+		BUTTON_WIDTH, 
+		BUTTON_HEIGHT, 
+		hwnd, 
+		(HMENU)BUTTON, 
+		NULL, 
+		NULL
+	);
 
-	return CreateWindow(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
-		WIN_WIDTH / 2 - EDIT_WIDTH / 2, WIN_HEIGHT / 4, EDIT_WIDTH,
-		EDIT_HEIGHT, hwnd, (HMENU)EDIT, NULL, NULL);
+	hEdit = CreateWindow(
+		L"EDIT", 
+		L"", 
+		WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
+		WIN_WIDTH / 2 - EDIT_WIDTH / 2, 
+		WIN_HEIGHT / 4, EDIT_WIDTH,
+		EDIT_HEIGHT, 
+		hwnd, 
+		(HMENU)EDIT, 
+		NULL, 
+		NULL
+	);
 }
 
 //Verifys that the ID number given is a valid one
@@ -158,12 +187,13 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 	if (wParam == BUTTON || wParam == VK_RETURN)
 	{
 		int len = GetWindowTextLength(hEdit);
-		buffer = new TCHAR[len + 1];
+		LPSTR buffer = new char[len + 1];
 
-		if (GetWindowText(hEdit, buffer, len + 1))
+		if (GetWindowTextA(hEdit, buffer, len + 1))
 		{
+			int len = strlen(buffer);
 			//If the user enters Close into the text field it will end the program
-			if (wcscmp(L"Close", buffer) == 0 || wcscmp(L"close", buffer) == 0)
+			if (!strcmp("close", buffer) || !strcmp("Close", buffer))
 			{
 				//checks if the current handle window is the main, then destroys it
 				if (GetParent(hwnd) == NULL)
@@ -171,35 +201,20 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 				else
 					DestroyWindow(GetParent(hwnd));
 			}
-			else // user has entered an ID number
+			else if (len >= 7 && len <= 9) // user has entered an ID number
 			{
-				char query[41] = "SELECT * FROM members WHERE id = ";
-				char buffer1[10];
-				wcstombs_s(NULL, buffer1, buffer, wcslen(buffer));
-				strcat_s(query, buffer1);
-				if (mysql_query(&conn, query))
+				if (!isdigit(buffer[0]))
 				{
-					MessageBox(hwnd, L"mysql_query encountered an error.", L"Failure", MB_OK);
+					++buffer; // removes 'C' at beginning of input, if user enters it
 				}
-				else
-				{
-					res = mysql_store_result(&conn);
-					if (res->row_count == 0)
-					{
-						MessageBox(hwnd, L"Result not found.", L"Failure", MB_OK);
-					}
-					else
-					{
-						int fieldNum = mysql_num_fields(res);
-						MessageBox(hwnd, L"Result found.", L"Success", MB_OK);
-					}
-					mysql_free_result(res);
-				}
+				std::string result = connAndQuery(buffer);
+				MessageBoxA(hwnd, result.c_str(), result.c_str(), MB_OK);
+			}
+			else
+			{
+				MessageBoxA(hwnd, "Input not recognized.", "Error", MB_OK);
 			}
 		}
-		else
-			MessageBox(hwnd, L"Blank input or invalid edit handle.", L"Error", MB_OK);
-
 	}
 }
 
@@ -214,4 +229,38 @@ LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		}
 	}
 	return CallWindowProc(wpOrigEditProc, hwnd, uMsg, wParam, lParam);
+}
+
+//connect to and query database
+std::string connAndQuery(LPSTR data)
+{
+	MYSQL* conn;
+	MYSQL_ROW row;
+	MYSQL_RES* res;
+	conn = mysql_init(0);
+
+	conn = mysql_real_connect(conn, "localhost", "root", "Garamantes45!", "occ_veteran_club", 3306, nullptr, 0);
+
+	if (!conn)
+	{
+		return 0;
+	}
+
+	std::string result = "not found";
+	std::string query = "SELECT * FROM members WHERE id = " + static_cast<std::string>(data);
+	const char* q = query.c_str();
+
+	qstate = mysql_query(conn, q);
+
+	if (!qstate)
+	{
+		res = mysql_store_result(conn);
+		while (row = mysql_fetch_row(res))
+			result = row[1];
+	}
+	else
+	{
+		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
+	}
+	return result;
 }
