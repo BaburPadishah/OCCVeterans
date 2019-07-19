@@ -9,6 +9,5 @@ If a user enters in an administrator password, another window appears which allo
 
 TO DO:
 1) create a message that appears for five seconds after a successful sign in
-2) communication with the SQL database
-3) create child window that allows a new member to register their name and branch
-4) create child window that allows an admin to search for members
+2) create child window that allows a new member to register their name and branch
+3) create child window that allows an admin to search for members
