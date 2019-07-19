@@ -219,7 +219,7 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 					++buffer; // removes 'C' at beginning of input, if user enters it
 				}
 				SYSTEMTIME st;
-				GetSystemTime(&st);
+				GetLocalTime(&st);
 				char displayTime[6];
 				sprintf_s(displayTime, "%02d:%02d", st.wHour, st.wMinute);
 
