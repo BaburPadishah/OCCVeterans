@@ -1,5 +1,16 @@
 Development Timeline (Add any new entries above the older ones)
 
+July 18th, 2019
+	NEW FEATURES:
+		(Develop branch) Program now inserts rows into logins table
+		(Develop branch) Success message displays user name and time of login
+		
+	CHANGES:
+		(Develop branch) checkIDNum accepts the following: length 9 string starting with C and the rest digits, length 8 			string of digits, and length 7 string of digits
+		
+	FIXES:
+		(Develop branch) Reduced number of global variables
+
 June 25th, 2019
 
 	NEW FEATURES:
