@@ -11,7 +11,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam);
 LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void checkIdNum(HWND hwnd, WPARAM wParam);
 void AddControls(HWND);
-std::string connAndQuery(LPSTR data);
+std::string QueryDB(LPSTR data, const SYSTEMTIME &st);
+void newMember(LPSTR data, HWND hwnd);
+
 
 // Global Variables
 HWND hEdit;
@@ -186,12 +188,21 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 {
 	if (wParam == BUTTON || wParam == VK_RETURN)
 	{
-		int len = GetWindowTextLength(hEdit);
+		size_t len = GetWindowTextLength(hEdit);
 		LPSTR buffer = new char[len + 1];
 
 		if (GetWindowTextA(hEdit, buffer, len + 1))
 		{
-			int len = strlen(buffer);
+			size_t len = strlen(buffer);
+			bool allDigit = true;
+			for (size_t i = 1; i < len; ++i)
+			{
+				if (!isdigit(buffer[i]))
+				{
+					allDigit = false;
+				}
+			}
+
 			//If the user enters Close into the text field it will end the program
 			if (!strcmp("close", buffer) || !strcmp("Close", buffer))
 			{
@@ -201,18 +212,36 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 				else
 					DestroyWindow(GetParent(hwnd));
 			}
-			else if (len >= 7 && len <= 9) // user has entered an ID number
+			else if (len >= 7 && len <= 9 && allDigit) // user has entered an ID number
 			{
 				if (!isdigit(buffer[0]))
 				{
 					++buffer; // removes 'C' at beginning of input, if user enters it
 				}
-				std::string result = connAndQuery(buffer);
-				MessageBoxA(hwnd, result.c_str(), result.c_str(), MB_OK);
+				SYSTEMTIME st;
+				GetSystemTime(&st);
+				char displayTime[6];
+				sprintf_s(displayTime, "%02d:%02d", st.wHour, st.wMinute);
+
+				std::string result = QueryDB(buffer, st);
+				if (result == "not found")
+				{
+					if (MessageBox(hwnd,
+						L"ID not found. Would you like to register as a new member?", 
+						L"New Member", MB_YESNO) == IDYES)
+					{
+						//TODO: newMember function
+					}
+				}
+				else // found a result
+				{
+					std::string loginMessage = result + " signed in at " + displayTime;
+					MessageBoxA(hwnd, loginMessage.c_str(), result.c_str(), MB_OK);
+				}
 			}
 			else
 			{
-				MessageBoxA(hwnd, "Input not recognized.", "Error", MB_OK);
+				MessageBox(hwnd, L"Input not recognized.", L"Error", MB_OK);
 			}
 		}
 	}
@@ -232,7 +261,7 @@ LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 }
 
 //connect to and query database
-std::string connAndQuery(LPSTR data)
+std::string QueryDB(LPSTR data, const SYSTEMTIME &st)
 {
 	MYSQL* conn;
 	MYSQL_ROW row;
@@ -240,7 +269,16 @@ std::string connAndQuery(LPSTR data)
 	int qstate;
 	conn = mysql_init(0);
 
-	conn = mysql_real_connect(conn, "localhost", "root", "Garamantes45!", "occ_veteran_club", 3306, nullptr, 0);
+	conn = mysql_real_connect(
+		conn, 
+		"localhost", 
+		"root", 
+		"Garamantes45!", 
+		"occ_veteran_club", 
+		3306, 
+		nullptr, 
+		0
+	);
 
 	if (!conn)
 	{
@@ -248,20 +286,41 @@ std::string connAndQuery(LPSTR data)
 	}
 
 	std::string result = "not found";
-	std::string query = "SELECT * FROM members WHERE id = " + static_cast<std::string>(data);
+	std::string query = "SELECT * FROM members WHERE id = " 
+		+ static_cast<std::string>(data);
 	const char* q = query.c_str();
 
 	qstate = mysql_query(conn, q);
 
-	if (!qstate)
+	if (!qstate) // mysql_query functioned correctly
 	{
 		res = mysql_store_result(conn);
 		while (row = mysql_fetch_row(res))
 			result = row[1];
+		mysql_free_result(res);
 	}
 	else
 	{
 		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
 	}
+
+	if (result != "not found")
+	{
+		char datetime[21];
+		sprintf_s(datetime, "%d-%02d-%02d %02d:%02d:%02d", 
+			st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+
+		std::string ins = "INSERT INTO logins (id, name, date_time) VALUES (" 
+			+ static_cast<std::string>(data) 
+			+ ", '" + result + "', " + "'" + datetime + "')";
+
+		qstate = mysql_query(conn, ins.c_str());
+
+		if (qstate)
+		{
+			std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
+		}
+	}
+
 	return result;
 }
