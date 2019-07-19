@@ -6,7 +6,10 @@ July 18th, 2019
 		(Develop branch) Success message displays user name and time of login
 		
 	CHANGES:
-		(Develop branch) checkIDNum accepts the following: length 9 string starting with C and the rest digits, length 8 			string of digits, and length 7 string of digits
+		(Develop branch) checkIDNum accepts the following: 
+		-length 9 string starting with C and the rest digits 
+		-length 8 string of digits (the starting 0 is irrelevant)
+		-length 7 string of digits
 		
 	FIXES:
 		(Develop branch) Reduced number of global variables
