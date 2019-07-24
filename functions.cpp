@@ -1,7 +1,7 @@
 #include "functions.h"
 
 //connect to and query database
-std::string QueryDB(LPSTR data, const SYSTEMTIME &st)
+std::string QueryDB(LPSTR data)
 {
 	MYSQL* conn;
 	MYSQL_ROW row;
@@ -46,13 +46,9 @@ std::string QueryDB(LPSTR data, const SYSTEMTIME &st)
 
 	if (result != "not found")
 	{
-		char datetime[21];
-		sprintf_s(datetime, "%d-%02d-%02d %02d:%02d:%02d",
-			st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
-
 		std::string ins = "INSERT INTO logins (id, name, date_time) VALUES ("
 			+ static_cast<std::string>(data)
-			+ ", '" + result + "', " + "'" + datetime + "')";
+			+ ", '" + result + "', NOW())";
 
 		qstate = mysql_query(conn, ins.c_str());
 
