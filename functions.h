@@ -7,6 +7,7 @@
 #include <mysql.h>
 #include <string>
 #include <iostream>
+#include <chrono>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam);
 LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -15,7 +16,7 @@ LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 void checkIdNum(HWND hwnd, WPARAM wParam);
 void AddControls(HWND);
 void AddRegControls(HWND);
-std::string QueryDB(LPSTR data, const SYSTEMTIME &st);
+std::string QueryDB(LPSTR data);
 int newMember(LPSTR data, HWND hwnd);
 
 
