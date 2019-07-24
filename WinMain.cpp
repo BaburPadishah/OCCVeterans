@@ -1,30 +1,8 @@
-#ifndef UNICODE
-#define UNICODE
-#endif
-
-#include <windows.h>
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam);
-LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-void checkIdNum(HWND hwnd, WPARAM wParam);
-HWND AddControls(HWND);
+#include "functions.h"
 
 // Global Variables
 HWND hEdit;
-TCHAR* buffer;
 WNDPROC wpOrigEditProc;
-
-// Global Constants
-const int WIN_WIDTH = 300;
-const int WIN_HEIGHT = 200;
-const int STATIC_WIDTH = 140;
-const int STATIC_HEIGHT = 20;
-const int EDIT_WIDTH = 140;
-const int EDIT_HEIGHT = 20;
-const int BUTTON_WIDTH = 70;
-const int BUTTON_HEIGHT = 40;
-
-enum Controls { STATIC, EDIT, BUTTON };
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
 	_In_ PWSTR pCmdLine, _In_ int nCmdShow)
@@ -40,17 +18,23 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
 
 	RegisterClass(&wc);
 
-	// Get screen resolution
-	int nScreenWidth = GetSystemMetrics(SM_CXSCREEN);
-	int nScreenHeight = GetSystemMetrics(SM_CYSCREEN);
-
 	// Window Creation
-	HWND hwnd = CreateWindowEx(0, CLASS_NAME,
-		L"OCC Student Veterans Association Sign-In", NULL,
-		nScreenWidth / 2 - WIN_WIDTH / 2, nScreenHeight / 2 - WIN_HEIGHT / 2,
-		WIN_WIDTH, WIN_HEIGHT, NULL, NULL, hInstance, NULL);
+	HWND hwnd = CreateWindowEx(
+		0,
+		CLASS_NAME,
+		L"OCC Student Veterans Association Sign-In",
+		NULL,
+		SCREEN_W / 2 - WIN_WIDTH / 2,
+		SCREEN_H / 2 - WIN_HEIGHT / 2,
+		WIN_WIDTH,
+		WIN_HEIGHT,
+		NULL,
+		NULL,
+		hInstance,
+		NULL
+	);
 
-	if (hwnd == NULL || hEdit == NULL)
+	if (hwnd == NULL)
 	{
 		return 0;
 	}
@@ -65,6 +49,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
 	return 0;
 }
 
@@ -74,8 +59,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 	{
-		hEdit = AddControls(hwnd);
-		wpOrigEditProc = (WNDPROC)SetWindowLong(hEdit, GWL_WNDPROC, (LONG)EditSubclassProc);
+		AddControls(hwnd);
 		break;
 	}
 
@@ -99,7 +83,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_CLOSE:
 		if (MessageBox(hwnd, L"Are you sure you want to quit?", L"Sign-in", MB_OKCANCEL) == IDOK)
+		{
 			DestroyWindow(hwnd);
+		}
 		// Else: User canceled. Do nothing.
 		return 0;
 
@@ -121,35 +107,156 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-// Adds button and static/edit controls
-HWND AddControls(HWND hwnd)
+LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	CreateWindow(L"STATIC", L"Please enter your ID:",
-		WS_VISIBLE | WS_CHILD | SS_CENTER, WIN_WIDTH / 2 - STATIC_WIDTH / 2,
-		WIN_HEIGHT / 10, STATIC_WIDTH, STATIC_HEIGHT, hwnd, (HMENU)STATIC, NULL, NULL);
 
-	CreateWindow(L"BUTTON", L"Sign In",
-		WS_VISIBLE | WS_BORDER | WS_CHILD,
-		WIN_WIDTH / 2 - BUTTON_WIDTH / 2,
-		WIN_HEIGHT / 2, BUTTON_WIDTH, BUTTON_HEIGHT, hwnd, (HMENU)BUTTON, NULL, NULL);
+	switch (uMsg)
+	{
+	case WM_CREATE:
+		AddRegControls(hwnd);
+		return 0;
+		break;
 
-	return CreateWindow(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
-		WIN_WIDTH / 2 - EDIT_WIDTH / 2, WIN_HEIGHT / 4, EDIT_WIDTH,
-		EDIT_HEIGHT, hwnd, (HMENU)EDIT, NULL, NULL);
+	//disables dragging
+	case WM_NCLBUTTONDOWN:
+		if (wParam == HTCAPTION)
+		{
+			return 0;
+		}
+		break;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+		break;
+
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hwnd, &ps);
+		FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_MENU + 1));
+		EndPaint(hwnd, &ps);
+	}
+	return 0;
+	break;
+	}
 }
 
-//Verifys that the ID number given is a valid one
+// Adds button and static/edit controls
+void AddControls(HWND hwnd)
+{
+	CreateWindow(L"STATIC",
+		L"Please enter your ID:",
+		WS_VISIBLE | WS_CHILD | SS_CENTER,
+		WIN_WIDTH / 2 - STATIC_WIDTH / 2,
+		WIN_HEIGHT / 10, 
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)STATIC,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(
+		L"BUTTON",
+		L"Sign In",
+		WS_VISIBLE | WS_BORDER | WS_CHILD,
+		WIN_WIDTH / 2 - BUTTON_WIDTH / 2,
+		WIN_HEIGHT / 2,
+		BUTTON_WIDTH,
+		BUTTON_HEIGHT,
+		hwnd,
+		(HMENU)BUTTON,
+		NULL,
+		NULL
+	);
+
+	hEdit = CreateWindow(
+		L"EDIT",
+		L"",
+		WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
+		WIN_WIDTH / 2 - EDIT_WIDTH / 2,
+		WIN_HEIGHT / 4,
+		EDIT_WIDTH,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)EDIT,
+		NULL,
+		NULL
+	);
+
+	wpOrigEditProc = (WNDPROC)SetWindowLongPtr(hEdit, GWLP_WNDPROC, (LONG_PTR)EditSubclassProc);
+}
+
+void AddRegControls(HWND parent)
+{
+	// Three static fields: ID, name, branch
+	CreateWindow(L"STATIC",
+		L"Student ID:",
+		WS_VISIBLE | WS_CHILD | SS_CENTER,
+		REG_WIDTH / 2 - STATIC_WIDTH,
+		REG_HEIGHT / 10, 
+		STATIC_WIDTH / 2,
+		STATIC_HEIGHT,
+		parent,
+		(HMENU)REG_ID_STATIC,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"STATIC",
+		L"First and Last Name:",
+		WS_VISIBLE | WS_CHILD | SS_CENTER,
+		REG_WIDTH / 2 - STATIC_WIDTH,
+		REG_HEIGHT / 2,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		parent,
+		(HMENU)REG_NAME_STATIC,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"STATIC",
+		L"Branch:",
+		WS_VISIBLE | WS_CHILD | SS_CENTER,
+		REG_WIDTH / 2 - STATIC_WIDTH,
+		REG_HEIGHT / 4,
+		STATIC_WIDTH / 3,
+		STATIC_HEIGHT,
+		parent,
+		(HMENU)REG_BRANCH_STATIC,
+		NULL,
+		NULL
+	);
+	// Two edit fields: ID (filled by buffer), name
+	// Five radio buttons: Army, Navy, Air Force, Marines, Coast Guard
+	// Two buttons: Register, Cancel
+}
+
+//Verifies that the ID number given is a valid one
 void checkIdNum(HWND hwnd, WPARAM wParam)
 {
 	if (wParam == BUTTON || wParam == VK_RETURN)
 	{
-		int len = GetWindowTextLength(hEdit);
-		buffer = new TCHAR[len + 1];
+		size_t len = GetWindowTextLength(hEdit);
+		LPSTR buffer = new char[len + 1];
 
-		if (GetWindowText(hEdit, buffer, len + 1))
+		if (GetWindowTextA(hEdit, buffer, len + 1))
 		{
+			size_t len = strlen(buffer);
+			bool allDigit = true;
+			for (size_t i = 1; i < len; ++i)
+			{
+				if (!isdigit(buffer[i]))
+				{
+					allDigit = false;
+				}
+			}
+
 			//If the user enters Close into the text field it will end the program
-			if (wcscmp(L"Close", buffer) == 0)
+			if (!strcmp("close", buffer) || !strcmp("Close", buffer))
 			{
 				//checks if the current handle window is the main, then destroys it
 				if (GetParent(hwnd) == NULL)
@@ -157,12 +264,38 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 				else
 					DestroyWindow(GetParent(hwnd));
 			}
-			else
-				MessageBox(hwnd, buffer, L"Success", MB_OK);
-		}
-		else
-			MessageBox(hwnd, L"Blank input or invalid edit handle.", L"Error", MB_OK);
+			else if ((len == 7 || (len == 8 && buffer[0] == '0') || (len == 9 && buffer[0] == 'C')) && allDigit) // user has entered an ID number
+			{
+				if (len == 9)
+				{
+					++buffer; // removes 'C' at beginning of input, if user enters it
+				}
+				SYSTEMTIME st;
+				GetLocalTime(&st);
+				char displayTime[6];
+				sprintf_s(displayTime, "%02d:%02d", st.wHour, st.wMinute);
 
+				std::string result = QueryDB(buffer, st);
+				if (result == "not found")
+				{
+					if (MessageBox(hwnd,
+						L"ID not found. Would you like to register as a new member?", 
+						L"New Member", MB_YESNO | MB_ICONEXCLAMATION) == IDYES)
+					{
+						newMember(buffer, hwnd);
+					}
+				}
+				else // found a result
+				{
+					std::string loginMessage = result + " signed in at " + displayTime;
+					MessageBoxA(hwnd, loginMessage.c_str(), result.c_str(), MB_OK);
+				}
+			}
+			else
+			{
+				MessageBox(hwnd, L"Input not recognized.", L"Error", MB_OK);
+			}
+		}
 	}
 }
 
