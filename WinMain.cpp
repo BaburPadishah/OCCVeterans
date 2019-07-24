@@ -270,12 +270,11 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 				{
 					++buffer; // removes 'C' at beginning of input, if user enters it
 				}
-				SYSTEMTIME st;
-				GetLocalTime(&st);
-				char displayTime[6];
-				sprintf_s(displayTime, "%02d:%02d", st.wHour, st.wMinute);
+				time_t tm = time(NULL);
+				char displayTime[26];
+				ctime_s(displayTime, sizeof displayTime, &tm);
 
-				std::string result = QueryDB(buffer, st);
+				std::string result = QueryDB(buffer);
 				if (result == "not found")
 				{
 					if (MessageBox(hwnd,
@@ -287,7 +286,7 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 				}
 				else // found a result
 				{
-					std::string loginMessage = result + " signed in at " + displayTime;
+					std::string loginMessage = result + " signed in on " + displayTime;
 					MessageBoxA(hwnd, loginMessage.c_str(), result.c_str(), MB_OK);
 				}
 			}
