@@ -77,13 +77,27 @@ int newMember(LPSTR data, HWND hwnd)
 		0,
 		CHILD_CLASS_NAME,
 		L"New Member Registration",
-		WS_CAPTION | WS_POPUPWINDOW,
+		NULL,
 		SCREEN_W / 2 - REG_WIDTH / 2,
 		SCREEN_H / 2 - REG_HEIGHT / 2,
 		REG_WIDTH,
 		REG_HEIGHT,
+		hwnd,
 		NULL,
 		NULL,
+		NULL
+	);
+
+	CreateWindowA(
+		"EDIT",
+		data,
+		WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
+		REG_WIDTH / 3,
+		REG_HEIGHT / 10,
+		EDIT_WIDTH,
+		EDIT_HEIGHT,
+		regWin,
+		(HMENU)REG_ID_EDIT,
 		NULL,
 		NULL
 	);
@@ -105,4 +119,9 @@ int newMember(LPSTR data, HWND hwnd)
 	}
 
 	return 0;
+}
+
+std::string addUserToRegistry(LPSTR data)
+{
+	
 }
