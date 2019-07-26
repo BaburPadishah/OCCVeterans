@@ -1,5 +1,13 @@
 Development Timeline (Add any new entries above the older ones)
 
+Jult 26th, 2019
+	NEW FEATURES:
+		Inputting an unknown but valid ID gives option to register as new member
+		ID number autofills from previous window
+		
+	KNOWN BUGS:
+		Register button is enabled even when First and Last Name fields are blank
+
 July 18th, 2019
 	NEW FEATURES:
 		(Develop branch) Program now inserts rows into logins table
