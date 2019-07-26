@@ -114,6 +114,7 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 		AddRegControls(hwnd);
+		EnableWindow(GetDlgItem(hwnd, REG_OK), FALSE);
 		return 0;
 		break;
 
@@ -139,7 +140,51 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 	break;
+
+	case WM_COMMAND:
+	{
+		switch (wParam)
+		{
+		case REG_CANCEL:
+		{
+			DestroyWindow(hwnd);
+			return 0;
+		}
+		case AIRFORCE_RADIO:
+		{
+			EnableWindow(GetDlgItem(hwnd, REG_OK), TRUE);
+			return 0;
+		}
+		case NAVY_RADIO:
+		{
+			EnableWindow(GetDlgItem(hwnd, REG_OK), TRUE);
+			return 0;
+		}
+		case ARMY_RADIO:
+		{
+			EnableWindow(GetDlgItem(hwnd, REG_OK), TRUE);
+			return 0;
+		}
+		case COASTGUARD_RADIO:
+		{
+			EnableWindow(GetDlgItem(hwnd, REG_OK), TRUE);
+			return 0;
+		}
+		case MARINES_RADIO:
+		{
+			EnableWindow(GetDlgItem(hwnd, REG_OK), TRUE);
+			return 0;
+		}
+		case REG_OK:
+		{
+			return 0;
+		}
+		}
 	}
+	}
+
+
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 // Adds button and static/edit controls
@@ -194,10 +239,10 @@ void AddRegControls(HWND parent)
 	// Three static fields: ID, name, branch
 	CreateWindow(L"STATIC",
 		L"Student ID:",
-		WS_VISIBLE | WS_CHILD | SS_CENTER,
-		REG_WIDTH / 2 - STATIC_WIDTH,
+		WS_VISIBLE | WS_CHILD | SS_RIGHT,
+		REG_WIDTH / 3 - STATIC_WIDTH - 5,
 		REG_HEIGHT / 10, 
-		STATIC_WIDTH / 2,
+		STATIC_WIDTH,
 		STATIC_HEIGHT,
 		parent,
 		(HMENU)REG_ID_STATIC,
@@ -206,33 +251,189 @@ void AddRegControls(HWND parent)
 	);
 
 	CreateWindow(L"STATIC",
-		L"First and Last Name:",
-		WS_VISIBLE | WS_CHILD | SS_CENTER,
-		REG_WIDTH / 2 - STATIC_WIDTH,
-		REG_HEIGHT / 2,
+		L"First Name:",
+		WS_VISIBLE | WS_CHILD | SS_RIGHT,
+		REG_WIDTH / 3 - STATIC_WIDTH - 5,
+		REG_HEIGHT / 5,
 		STATIC_WIDTH,
 		STATIC_HEIGHT,
 		parent,
-		(HMENU)REG_NAME_STATIC,
+		(HMENU)REG_FNAME_STATIC,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"STATIC",
+		L"Last Name:",
+		WS_VISIBLE | WS_CHILD | SS_RIGHT,
+		REG_WIDTH / 3 - STATIC_WIDTH - 5,
+		3 * REG_HEIGHT / 10,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		parent,
+		(HMENU)REG_LNAME_STATIC,
 		NULL,
 		NULL
 	);
 
 	CreateWindow(L"STATIC",
 		L"Branch:",
-		WS_VISIBLE | WS_CHILD | SS_CENTER,
-		REG_WIDTH / 2 - STATIC_WIDTH,
-		REG_HEIGHT / 4,
-		STATIC_WIDTH / 3,
+		WS_VISIBLE | WS_CHILD | SS_RIGHT,
+		REG_WIDTH / 3 - STATIC_WIDTH - 5,
+		4 * REG_HEIGHT / 10,
+		STATIC_WIDTH,
 		STATIC_HEIGHT,
 		parent,
 		(HMENU)REG_BRANCH_STATIC,
 		NULL,
 		NULL
 	);
-	// Two edit fields: ID (filled by buffer), name
+
+	// Three edit fields: ID (filled by buffer), first name, last name
+
+	CreateWindow(
+		L"EDIT",
+		L"",
+		WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
+		REG_WIDTH / 3,
+		REG_HEIGHT / 5,
+		EDIT_WIDTH,
+		EDIT_HEIGHT,
+		parent,
+		(HMENU)REG_FNAME_EDIT,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(
+		L"EDIT",
+		L"",
+		WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
+		REG_WIDTH / 3,
+		3 * REG_HEIGHT / 10,
+		EDIT_WIDTH,
+		EDIT_HEIGHT,
+		parent,
+		(HMENU)REG_LNAME_EDIT,
+		NULL,
+		NULL
+	);
+
 	// Five radio buttons: Army, Navy, Air Force, Marines, Coast Guard
+
+	// Create Air Force radio button
+	CreateWindowEx(
+		WS_EX_WINDOWEDGE,
+		L"BUTTON",
+		L"Air Force",
+		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON
+		| WS_TABSTOP | WS_GROUP,
+		REG_WIDTH / 3,
+		4 * REG_HEIGHT / 10,
+		100,
+		EDIT_HEIGHT,
+		parent,
+		(HMENU)AIRFORCE_RADIO,
+		NULL,
+		NULL
+	);
+
+	// Create Army radio button
+	CreateWindowEx(
+		WS_EX_WINDOWEDGE,
+		L"BUTTON",
+		L"Army",
+		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
+		REG_WIDTH / 3,
+		4 * REG_HEIGHT / 10 + 20,
+		100,
+		EDIT_HEIGHT,
+		parent,
+		(HMENU)ARMY_RADIO,
+		NULL,
+		NULL
+	);
+
+	//Create Coast Guard radio button
+	CreateWindowEx(
+		WS_EX_WINDOWEDGE,
+		L"BUTTON",
+		L"Coast Guard",
+		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
+		REG_WIDTH / 3,
+		4 * REG_HEIGHT / 10 + 40,
+		100,
+		EDIT_HEIGHT,
+		parent,
+		(HMENU)COASTGUARD_RADIO,
+		NULL,
+		NULL
+	);
+
+	// Create Marines radio button
+	CreateWindowEx(
+		WS_EX_WINDOWEDGE,
+		L"BUTTON",
+		L"Marines",
+		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
+		2 * REG_WIDTH / 3,
+		4 * REG_HEIGHT / 10,
+		100,
+		EDIT_HEIGHT,
+		parent,
+		(HMENU)MARINES_RADIO,
+		NULL,
+		NULL
+	);
+
+	// Create Navy radio button
+	CreateWindowEx(
+		WS_EX_WINDOWEDGE,
+		L"BUTTON",
+		L"Navy",
+		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
+		2 * REG_WIDTH / 3,
+		4 * REG_HEIGHT / 10 + 20,
+		100,
+		EDIT_HEIGHT,
+		parent,
+		(HMENU)NAVY_RADIO,
+		NULL,
+		NULL
+	);
+
 	// Two buttons: Register, Cancel
+
+	CreateWindowEx(
+		WS_EX_LEFT,
+		L"BUTTON",
+		L"Register",
+		WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+		REG_WIDTH / 2 - BUTTON_WIDTH - 10,
+		2 * REG_HEIGHT / 3,
+		BUTTON_WIDTH,
+		BUTTON_HEIGHT,
+		parent,
+		(HMENU)REG_OK,
+		(HINSTANCE)GetWindowLong(parent, GWLP_HINSTANCE),
+		NULL
+	);
+
+	// Create button
+	CreateWindowEx(
+		WS_EX_LEFT,
+		L"BUTTON",
+		L"Cancel",
+		WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+		REG_WIDTH / 2 + 10,
+		2 * REG_HEIGHT / 3,
+		BUTTON_WIDTH,
+		BUTTON_HEIGHT,
+		parent,
+		(HMENU)REG_CANCEL,
+		(HINSTANCE)GetWindowLong(parent, GWLP_HINSTANCE),
+		NULL
+	);
 }
 
 //Verifies that the ID number given is a valid one
@@ -256,7 +457,7 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 			}
 
 			//If the user enters Close into the text field it will end the program
-			if (!strcmp("close", buffer) || !strcmp("Close", buffer))
+			if (!strcmp("close", buffer) || !strcmp("Close", buffer) || !strcmp("CLOSE", buffer))
 			{
 				//checks if the current handle window is the main, then destroys it
 				if (GetParent(hwnd) == NULL)
