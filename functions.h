@@ -18,6 +18,7 @@ void AddControls(HWND);
 void AddRegControls(HWND);
 std::string QueryDB(LPSTR data);
 int newMember(LPSTR data, HWND hwnd);
+std::string addUserToRegistry(LPSTR data);
 
 
 // Screen resolution
@@ -35,7 +36,11 @@ const int BUTTON_WIDTH = 70;
 const int BUTTON_HEIGHT = 40;
 
 // Global Constants - New Member Register Window
-const int REG_WIDTH = 600;
+const int REG_WIDTH = 400;
 const int REG_HEIGHT = 300;
 
-enum Controls { STATIC, EDIT, BUTTON, REG_ID_STATIC, REG_NAME_STATIC, REG_BRANCH_STATIC, REG_ID_EDIT, REG_NAME_EDIT, REG_BTN, REG_CANCEL };
+enum Controls { 
+	STATIC, EDIT, BUTTON, 
+	REG_ID_STATIC, REG_FNAME_STATIC, REG_LNAME_STATIC, REG_BRANCH_STATIC, REG_ID_EDIT, REG_FNAME_EDIT, REG_LNAME_EDIT, REG_OK, REG_CANCEL,
+	AIRFORCE_RADIO, NAVY_RADIO, ARMY_RADIO, COASTGUARD_RADIO, MARINES_RADIO
+};
