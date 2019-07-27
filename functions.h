@@ -16,9 +16,9 @@ LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 void checkIdNum(HWND hwnd, WPARAM wParam);
 void AddControls(HWND);
 void AddRegControls(HWND);
-std::string QueryDB(LPSTR data);
+std::string QueryDB(LPSTR id);
+std::string QueryDB(LPSTR id, LPSTR FName, LPSTR LName, LPSTR Branch);
 int newMember(LPSTR data, HWND hwnd);
-std::string addUserToRegistry(LPSTR data);
 
 
 // Screen resolution
