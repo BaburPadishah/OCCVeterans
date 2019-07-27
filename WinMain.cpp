@@ -177,6 +177,39 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		case REG_OK:
 		{
+			LPSTR id = new char[9];
+			LPSTR FName = new char[20];
+			LPSTR LName = new char[20];
+			LPSTR Branch = new char[12];
+			GetDlgItemTextA(hwnd, REG_ID_EDIT, id, 9);
+			GetDlgItemTextA(hwnd, REG_FNAME_EDIT, FName, 20);
+			GetDlgItemTextA(hwnd, REG_LNAME_EDIT, LName, 20);
+
+			if (IsDlgButtonChecked(hwnd, AIRFORCE_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, AIRFORCE_RADIO, Branch, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, ARMY_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, ARMY_RADIO, Branch, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, COASTGUARD_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, COASTGUARD_RADIO, Branch, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, NAVY_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, NAVY_RADIO, Branch, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, MARINES_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, MARINES_RADIO, Branch, 12);
+			}
+			
+			QueryDB(id, FName, LName, Branch);
+
+			DestroyWindow(hwnd);
+
 			return 0;
 		}
 		}
@@ -511,3 +544,4 @@ LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	}
 	return CallWindowProc(wpOrigEditProc, hwnd, uMsg, wParam, lParam);
 }
+
