@@ -3,10 +3,12 @@ Development Timeline (Add any new entries above the older ones)
 Jult 26th, 2019
 	NEW FEATURES:
 		Inputting an unknown but valid ID gives option to register as new member
+		New members are inserted into members and logins table
 		ID number autofills from previous window
 		
 	KNOWN BUGS:
 		Register button is enabled even when First and Last Name fields are blank
+		Success window doesn't display for new members
 
 July 18th, 2019
 	NEW FEATURES:
