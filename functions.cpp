@@ -1,7 +1,7 @@
 #include "functions.h"
 
 //connect to and query database
-std::string QueryDB(LPSTR data)
+std::string QueryDB(LPSTR id)
 {
 	MYSQL* conn;
 	MYSQL_ROW row;
@@ -27,7 +27,7 @@ std::string QueryDB(LPSTR data)
 
 	std::string result = "not found";
 	std::string query = "SELECT * FROM members WHERE id = "
-		+ static_cast<std::string>(data);
+		+ static_cast<std::string>(id);
 	const char* q = query.c_str();
 
 	qstate = mysql_query(conn, q);
@@ -47,7 +47,7 @@ std::string QueryDB(LPSTR data)
 	if (result != "not found")
 	{
 		std::string ins = "INSERT INTO logins (id, name, date_time) VALUES ("
-			+ static_cast<std::string>(data)
+			+ static_cast<std::string>(id)
 			+ ", '" + result + "', NOW())";
 
 		qstate = mysql_query(conn, ins.c_str());
@@ -59,6 +59,57 @@ std::string QueryDB(LPSTR data)
 	}
 
 	return result;
+}
+
+std::string QueryDB(LPSTR id, LPSTR FName, LPSTR LName, LPSTR Branch)
+{
+	MYSQL* conn;
+	MYSQL_ROW row;
+	MYSQL_RES* res;
+	int qstate;
+	conn = mysql_init(0);
+
+	conn = mysql_real_connect(
+		conn,
+		"localhost",
+		"root",
+		"Garamantes45!",
+		"occ_veteran_club",
+		3306,
+		nullptr,
+		0
+	);
+
+	if (!conn)
+	{
+		return 0;
+	}
+
+	std::string ins = "INSERT INTO members (id, name, branch) VALUES ("
+		+ static_cast<std::string>(id)
+		+ ", '" + static_cast<std::string>(LName) + ", " + static_cast<std::string>(FName) + "', '"
+		+ static_cast<std::string>(Branch) + "')";
+
+	qstate = mysql_query(conn, ins.c_str());
+
+	if (qstate)
+	{
+		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
+	}
+
+	std::string insLog = "INSERT INTO logins (id, name, date_time) VALUES ("
+		+ static_cast<std::string>(id) + ", '" 
+		+ static_cast<std::string>(LName) + ", " + static_cast<std::string>(FName) 
+		+ "', NOW())";
+
+	qstate = mysql_query(conn, insLog.c_str());
+
+	if (qstate)
+	{
+		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
+	}
+
+	return ins;
 }
 
 int newMember(LPSTR data, HWND hwnd)
@@ -119,9 +170,4 @@ int newMember(LPSTR data, HWND hwnd)
 	}
 
 	return 0;
-}
-
-std::string addUserToRegistry(LPSTR data)
-{
-	
 }
