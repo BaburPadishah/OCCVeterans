@@ -1,6 +1,14 @@
 Development Timeline (Add any new entries above the older ones)
 
-Jult 26th, 2019
+July 30th, 2019
+	NEW FEATURES:
+		Typing in admin password creates an admin window with lists of members
+	BUG FIXES:
+		Register button on new member window only enables when all fields are filled
+	KNOWN BUGS:
+		If the user erases input in one of the new member fields, Register button stays enabled
+
+July 26th, 2019
 	NEW FEATURES:
 		Inputting an unknown but valid ID gives option to register as new member
 		New members are inserted into members and logins table
