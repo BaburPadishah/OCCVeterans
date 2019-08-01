@@ -173,21 +173,32 @@ void AddAdminControls(HWND hwnd)
 		NULL
 	);
 
-	WCHAR szText[256] = L"TEST";
+	WCHAR idHeader[3] = L"ID";
+	WCHAR nameHeader[5] = L"Name";
+	WCHAR branchHeader[7] = L"Branch";
+	WCHAR dateHeader[5] = L"Date";
+
 	LVCOLUMN lvc;
-	int iCol;
 
 	lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
-	lvc.fmt = LVCFMT_CENTER;
+	lvc.fmt = LVCFMT_LEFT;
 
-	for (iCol = 0; iCol <= 3; ++iCol)
-	{
-		lvc.iSubItem = iCol;
-		lvc.pszText = szText;
-		lvc.cx = LV_WIDTH / 3;
-	}
+	lvc.iSubItem = 0;
+	lvc.pszText = idHeader;
+	lvc.cx = LV_WIDTH / 3;
+	ListView_InsertColumn(hWndMemberList, 0, &lvc);
+	ListView_InsertColumn(hWndLoginList, 0, &lvc);
 
-	ListView_InsertColumn(hWndMemberList, iCol, &lvc);
+	lvc.iSubItem = 1;
+	lvc.pszText = nameHeader;
+	ListView_InsertColumn(hWndMemberList, 1, &lvc);
+	ListView_InsertColumn(hWndLoginList, 1, &lvc);
+
+	lvc.iSubItem = 2;
+	lvc.pszText = branchHeader;
+	ListView_InsertColumn(hWndMemberList, 2, &lvc);
+	lvc.pszText = dateHeader;
+	ListView_InsertColumn(hWndLoginList, 2, &lvc);
 
 	ShowWindow(hWndMemberList, SW_SHOW);
 	ShowWindow(hWndLoginList, SW_SHOW);
