@@ -230,5 +230,12 @@ LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			checkIdNum(hwnd, wParam);
 		}
 	}
+	else if (uMsg == WM_CHAR)//stops the noise when pressing enter
+	{
+		if (wParam == VK_RETURN)
+		{
+			return 0;
+		}
+	}
 	return CallWindowProc(wpOrigEditProc, hwnd, uMsg, wParam, lParam);
 }
