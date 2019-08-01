@@ -173,12 +173,8 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 					allDigit = false;
 				}
 			}
-			if (!strcmp("password", buffer)) // user has entered admin password
-			{
-				AdminWin();
-			}
 			//If the user enters Close into the text field it will end the program
-			else if (!strcmp("close", buffer) || !strcmp("Close", buffer) || !strcmp("CLOSE", buffer))
+			if (!strcmp("close", buffer) || !strcmp("Close", buffer) || !strcmp("CLOSE", buffer))
 			{
 				//checks if the current handle window is the main, then destroys it
 				if (GetParent(hwnd) == NULL)
@@ -194,8 +190,11 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 				}
 
 				std::string result = checkMembers(buffer);
-
-				if (result == "not found")
+				if (result == "ADMIN")
+				{
+					AdminWin();
+				}
+				else if (result == "not found")
 				{
 					if (MessageBox(hwnd,
 						L"ID not found. Would you like to register as a new member?",
