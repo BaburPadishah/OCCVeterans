@@ -45,10 +45,10 @@ const int REG_WIDTH = 400;
 const int REG_HEIGHT = 300;
 
 // Global Constants - Admin Window 
-const int ADMIN_WIDTH = 800;
+const int ADMIN_WIDTH = 1000;
 const int ADMIN_HEIGHT = 600;
-const int LV_WIDTH = 350;
-const int LV_HEIGHT = 400;
+const int LV_WIDTH = ADMIN_WIDTH / 2 - 50;
+const int LV_HEIGHT = 2 * ADMIN_HEIGHT / 3;
 
 enum Controls {
 	STATIC, EDIT, BUTTON,
