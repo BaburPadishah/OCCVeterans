@@ -13,3 +13,8 @@ CREATE TABLE IF NOT EXISTS logins(
     name VARCHAR(50) NOT NULL,
     date_time DATETIME NOT NULL
     );
+    
+CREATE TABLE IF NOT EXISTS admin(
+	id VARCHAR(15) NOT NULL,
+	name VARCHAR(5)
+	);
