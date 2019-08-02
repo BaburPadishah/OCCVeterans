@@ -128,7 +128,7 @@ int newMember(LPSTR data)
 		0,
 		CHILD_CLASS_NAME,
 		L"New Member Registration",
-		NULL,
+		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_BORDER,
 		SCREEN_W / 2 - REG_WIDTH / 2,
 		SCREEN_H / 2 - REG_HEIGHT / 2,
 		REG_WIDTH,
