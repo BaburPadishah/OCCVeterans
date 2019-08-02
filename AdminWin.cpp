@@ -125,16 +125,329 @@ void AddAdminControls(HWND hwnd)
 		NULL
 	);
 
+	CreateWindow(L"STATIC",
+		L"Search by ID:",
+		WS_VISIBLE | WS_CHILD | SS_RIGHT,
+		ADMIN_WIDTH / 4 - STATIC_WIDTH,
+		ADMIN_HEIGHT / 60 + 30,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_ID_STATIC,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"STATIC",
+		L"Search by Name:",
+		WS_VISIBLE | WS_CHILD | SS_RIGHT,
+		ADMIN_WIDTH / 4 - STATIC_WIDTH,
+		ADMIN_HEIGHT / 60 + 60,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_NAME_STATIC,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"STATIC",
+		L"Search by Branch:",
+		WS_VISIBLE | WS_CHILD | SS_RIGHT,
+		ADMIN_WIDTH / 4 - STATIC_WIDTH,
+		ADMIN_HEIGHT / 60 + 90,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_BRANCH_STATIC,
+		NULL,
+		NULL
+	);
+
 	CreateWindow(
 		L"BUTTON",
 		L"Finish",
 		WS_VISIBLE | WS_BORDER | WS_CHILD,
-		5 * ADMIN_WIDTH / 6 - BUTTON_WIDTH / 2,
-		5 * ADMIN_HEIGHT / 6,
+		9 * ADMIN_WIDTH / 10 - BUTTON_WIDTH / 2,
+		9 * ADMIN_HEIGHT / 10,
 		BUTTON_WIDTH,
 		BUTTON_HEIGHT,
 		hwnd,
 		(HMENU)ADMIN_FINISH,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"EDIT",
+		L"",
+		WS_VISIBLE | WS_BORDER | WS_CHILD | SS_LEFT,
+		ADMIN_WIDTH / 4 + 5,
+		ADMIN_HEIGHT / 60 + 30,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_MEMBERS_ID_EDIT,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"EDIT",
+		L"",
+		WS_VISIBLE | WS_BORDER | WS_CHILD | SS_LEFT,
+		ADMIN_WIDTH / 4 + 5,
+		ADMIN_HEIGHT / 60 + 60,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_MEMBERS_NAME_EDIT,
+		NULL,
+		NULL
+	);
+
+	CreateWindowEx(
+		WS_EX_WINDOWEDGE,
+		L"BUTTON",
+		L"Air Force",
+		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON
+		| WS_TABSTOP | WS_GROUP,
+		ADMIN_WIDTH / 4 + 5,
+		ADMIN_HEIGHT / 60 + 90,
+		100,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)AIRFORCE_RADIO,
+		NULL,
+		NULL
+	);
+
+	// Create Army radio button
+	CreateWindowEx(
+		WS_EX_WINDOWEDGE,
+		L"BUTTON",
+		L"Army",
+		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
+		ADMIN_WIDTH / 4 + 5,
+		ADMIN_HEIGHT / 60 + 110,
+		100,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)ARMY_RADIO,
+		NULL,
+		NULL
+	);
+
+	//Create Coast Guard radio button
+	CreateWindowEx(
+		WS_EX_WINDOWEDGE,
+		L"BUTTON",
+		L"Coast Guard",
+		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
+		ADMIN_WIDTH / 4 + 5,
+		ADMIN_HEIGHT / 60 + 130,
+		100,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)COASTGUARD_RADIO,
+		NULL,
+		NULL
+	);
+
+	// Create Marines radio button
+	CreateWindowEx(
+		WS_EX_WINDOWEDGE,
+		L"BUTTON",
+		L"Marines",
+		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
+		ADMIN_WIDTH / 4 + 105,
+		ADMIN_HEIGHT / 60 + 90,
+		100,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)MARINES_RADIO,
+		NULL,
+		NULL
+	);
+
+	// Create Navy radio button
+	CreateWindowEx(
+		WS_EX_WINDOWEDGE,
+		L"BUTTON",
+		L"Navy",
+		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
+		ADMIN_WIDTH / 4 + 105,
+		ADMIN_HEIGHT / 60 + 110,
+		100,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)NAVY_RADIO,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(
+		L"BUTTON",
+		L"Search Members",
+		WS_VISIBLE | WS_BORDER | WS_CHILD,
+		ADMIN_WIDTH / 4 - LV_WIDTH / 2,
+		ADMIN_HEIGHT / 5 - BUTTON_HEIGHT - 5,
+		BUTTON_WIDTH * 2,
+		BUTTON_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_MEMBERS_BUTTON,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(
+		L"BUTTON",
+		L"Search Logins",
+		WS_VISIBLE | WS_BORDER | WS_CHILD,
+		3 * ADMIN_WIDTH / 4 - LV_WIDTH / 2,
+		ADMIN_HEIGHT / 5 - BUTTON_HEIGHT - 5,
+		BUTTON_WIDTH * 2,
+		BUTTON_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_LOGINS_BUTTON,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"STATIC",
+		L"Search by ID:",
+		WS_VISIBLE | WS_CHILD | SS_RIGHT,
+		3 * ADMIN_WIDTH / 4 - STATIC_WIDTH,
+		ADMIN_HEIGHT / 60 + 30,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_ID_STATIC,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"STATIC",
+		L"Search by Name:",
+		WS_VISIBLE | WS_CHILD | SS_RIGHT,
+		3 * ADMIN_WIDTH / 4 - STATIC_WIDTH,
+		ADMIN_HEIGHT / 60 + 60,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_NAME_STATIC,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"STATIC",
+		L"Search by Date:",
+		WS_VISIBLE | WS_CHILD | SS_RIGHT,
+		3 * ADMIN_WIDTH / 4 - STATIC_WIDTH,
+		ADMIN_HEIGHT / 60 + 90,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_BRANCH_STATIC,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"EDIT",
+		L"",
+		WS_VISIBLE | WS_BORDER | WS_CHILD | SS_LEFT,
+		3 * ADMIN_WIDTH / 4 + 5,
+		ADMIN_HEIGHT / 60 + 30,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_LOGINS_ID_EDIT,
+		NULL,
+		NULL
+	);
+
+	CreateWindow(L"EDIT",
+		L"",
+		WS_VISIBLE | WS_BORDER | WS_CHILD | SS_LEFT,
+		3 * ADMIN_WIDTH / 4 + 5,
+		ADMIN_HEIGHT / 60 + 60,
+		STATIC_WIDTH,
+		STATIC_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_SEARCH_LOGINS_NAME_EDIT,
+		NULL,
+		NULL
+	);
+
+	CreateWindowEx(
+		0,
+		L"BUTTON",
+		L"Past Day",
+		WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_GROUP | BS_AUTORADIOBUTTON,
+		3 * ADMIN_WIDTH / 4 + 5,
+		ADMIN_HEIGHT / 60 + 90,
+		100,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_PAST_DAY_RADIO,
+		NULL,
+		NULL
+	);
+
+	CreateWindowEx(
+		0,
+		L"BUTTON",
+		L"Past Week",
+		WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_AUTORADIOBUTTON,
+		3 * ADMIN_WIDTH / 4 + 5,
+		ADMIN_HEIGHT / 60 + 110,
+		100,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_PAST_WEEK_RADIO,
+		NULL,
+		NULL
+	);
+
+	CreateWindowEx(
+		0,
+		L"BUTTON",
+		L"Past Month",
+		WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_AUTORADIOBUTTON,
+		3 * ADMIN_WIDTH / 4 + 5,
+		ADMIN_HEIGHT / 60 + 130,
+		100,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_PAST_MONTH_RADIO,
+		NULL,
+		NULL
+	);
+
+	CreateWindowEx(
+		0,
+		L"BUTTON",
+		L"Past Year",
+		WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_AUTORADIOBUTTON,
+		3 * ADMIN_WIDTH / 4 + 105,
+		ADMIN_HEIGHT / 60 + 90,
+		100,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_PAST_YEAR_RADIO,
+		NULL,
+		NULL
+	);
+
+	CreateWindowEx(
+		0,
+		L"BUTTON",
+		L"All Time",
+		WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_AUTORADIOBUTTON,
+		3 * ADMIN_WIDTH / 4 + 105,
+		ADMIN_HEIGHT / 60 + 110,
+		100,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)ADMIN_ALL_TIME_RADIO,
 		NULL,
 		NULL
 	);
@@ -150,7 +463,7 @@ void AddAdminControls(HWND hwnd)
 		L"",
 		WS_CHILD | WS_BORDER | LVS_REPORT | LVS_EDITLABELS,
 		ADMIN_WIDTH / 4 - LV_WIDTH / 2,
-		ADMIN_HEIGHT / 10,
+		ADMIN_HEIGHT / 5,
 		LV_WIDTH,
 		LV_HEIGHT,
 		hwnd,
@@ -164,7 +477,7 @@ void AddAdminControls(HWND hwnd)
 		L"",
 		WS_CHILD | WS_BORDER | LVS_REPORT | LVS_EDITLABELS,
 		3 * ADMIN_WIDTH / 4 - LV_WIDTH / 2,
-		ADMIN_HEIGHT / 10,
+		ADMIN_HEIGHT / 5,
 		LV_WIDTH,
 		LV_HEIGHT,
 		hwnd,
