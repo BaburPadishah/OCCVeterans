@@ -17,7 +17,7 @@ int AdminWin()
 		0,
 		ADMIN_CLASS_NAME,
 		L"Search Records",
-		NULL,
+		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_BORDER,
 		SCREEN_W / 2 - ADMIN_WIDTH / 2,
 		SCREEN_H / 2 - ADMIN_HEIGHT / 2,
 		ADMIN_WIDTH,
