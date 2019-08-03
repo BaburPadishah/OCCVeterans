@@ -1,4 +1,4 @@
-#include "functions.h"
+#include "header.h"
 
 // Global Variables
 HWND hEdit;
@@ -107,41 +107,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-
-	switch (uMsg)
-	{
-	case WM_CREATE:
-		AddRegControls(hwnd);
-		return 0;
-		break;
-
-	//disables dragging
-	case WM_NCLBUTTONDOWN:
-		if (wParam == HTCAPTION)
-		{
-			return 0;
-		}
-		break;
-
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
-		break;
-
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hwnd, &ps);
-		FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_MENU + 1));
-		EndPaint(hwnd, &ps);
-	}
-	return 0;
-	break;
-	}
-}
-
 // Adds button and static/edit controls
 void AddControls(HWND hwnd)
 {
@@ -149,7 +114,7 @@ void AddControls(HWND hwnd)
 		L"Please enter your ID:",
 		WS_VISIBLE | WS_CHILD | SS_CENTER,
 		WIN_WIDTH / 2 - STATIC_WIDTH / 2,
-		WIN_HEIGHT / 10, 
+		WIN_HEIGHT / 10,
 		STATIC_WIDTH,
 		STATIC_HEIGHT,
 		hwnd,
@@ -189,52 +154,6 @@ void AddControls(HWND hwnd)
 	wpOrigEditProc = (WNDPROC)SetWindowLongPtr(hEdit, GWLP_WNDPROC, (LONG_PTR)EditSubclassProc);
 }
 
-void AddRegControls(HWND parent)
-{
-	// Three static fields: ID, name, branch
-	CreateWindow(L"STATIC",
-		L"Student ID:",
-		WS_VISIBLE | WS_CHILD | SS_CENTER,
-		WIN_WIDTH / 2 - STATIC_WIDTH / 2,
-		WIN_HEIGHT / 10, 
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		parent,
-		(HMENU)REG_ID_STATIC,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"STATIC",
-		L"First and Last Name:",
-		WS_VISIBLE | WS_CHILD | SS_CENTER,
-		WIN_WIDTH / 2 - STATIC_WIDTH / 2,
-		WIN_HEIGHT / 2,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		parent,
-		(HMENU)REG_NAME_STATIC,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"STATIC",
-		L"Branch:",
-		WS_VISIBLE | WS_CHILD | SS_CENTER,
-		WIN_WIDTH / 2 - STATIC_WIDTH / 2,
-		WIN_HEIGHT / 4,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		parent,
-		(HMENU)REG_BRANCH_STATIC,
-		NULL,
-		NULL
-	);
-	// Two edit fields: ID (filled by buffer), name
-	// Five radio buttons: Army, Navy, Air Force, Marines, Coast Guard
-	// Two buttons: Register, Cancel
-}
-
 //Verifies that the ID number given is a valid one
 void checkIdNum(HWND hwnd, WPARAM wParam)
 {
@@ -254,9 +173,8 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 					allDigit = false;
 				}
 			}
-
 			//If the user enters Close into the text field it will end the program
-			if (!strcmp("close", buffer) || !strcmp("Close", buffer))
+			if (!strcmp("close", buffer) || !strcmp("Close", buffer) || !strcmp("CLOSE", buffer))
 			{
 				//checks if the current handle window is the main, then destroys it
 				if (GetParent(hwnd) == NULL)
@@ -270,24 +188,27 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 				{
 					++buffer; // removes 'C' at beginning of input, if user enters it
 				}
-				SYSTEMTIME st;
-				GetLocalTime(&st);
-				char displayTime[6];
-				sprintf_s(displayTime, "%02d:%02d", st.wHour, st.wMinute);
 
-				std::string result = QueryDB(buffer, st);
-				if (result == "not found")
+				std::string result = checkMembers(buffer);
+				if (result == "ADMIN")
+				{
+					AdminWin();
+				}
+				else if (result == "not found")
 				{
 					if (MessageBox(hwnd,
-						L"ID not found. Would you like to register as a new member?", 
-						L"New Member", MB_YESNO) == IDYES)
+						L"ID not found. Would you like to register as a new member?",
+						L"New Member", MB_YESNO | MB_ICONEXCLAMATION) == IDYES)
 					{
-						newMember(buffer, hwnd);
+						newMember(buffer);
 					}
 				}
-				else // found a result
+				else
 				{
-					std::string loginMessage = result + " signed in at " + displayTime;
+					time_t tm = time(NULL);
+					char displayTime[26];
+					ctime_s(displayTime, sizeof displayTime, &tm);
+					std::string loginMessage = result + " signed in on " + displayTime;
 					MessageBoxA(hwnd, loginMessage.c_str(), result.c_str(), MB_OK);
 				}
 			}
@@ -307,6 +228,13 @@ LRESULT APIENTRY EditSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		if (wParam == VK_RETURN)
 		{
 			checkIdNum(hwnd, wParam);
+		}
+	}
+	else if (uMsg == WM_CHAR)//stops the noise when pressing enter
+	{
+		if (wParam == VK_RETURN)
+		{
+			return 0;
 		}
 	}
 	return CallWindowProc(wpOrigEditProc, hwnd, uMsg, wParam, lParam);
