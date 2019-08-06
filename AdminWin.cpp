@@ -107,7 +107,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			}
 			else if (IsDlgButtonChecked(hwnd, ALL_BRANCH_RADIO) == BST_CHECKED)
 			{
-				GetDlgItemTextA(hwnd, ALL_BRANCH_RADIO, radio, 12);
+				radio[0] = '\0';
 			}
 			else // no buttons checked
 			{
@@ -117,17 +117,20 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			std::string q = CreateQuery(id, name, radio, ADMIN_SEARCH_MEMBERS_BUTTON);
 			MYSQL_RES* res = AdminQueryDB(q);
 
+			
+
+			mysql_free_result(res);
 			break;
 		}
 		case ADMIN_SEARCH_LOGINS_BUTTON:
 		{
 			char id[9], name[40], radio[12];
 
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) == 0)
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_ID_EDIT, id, 9) == 0)
 			{
 				id[0] = '\0';
 			}
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_NAME_EDIT, name, 40) == 0)
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_NAME_EDIT, name, 40) == 0)
 			{
 				name[0] = '\0';
 			}
@@ -150,7 +153,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			}
 			else if (IsDlgButtonChecked(hwnd, ADMIN_ALL_TIME_RADIO) == BST_CHECKED)
 			{
-				GetDlgItemTextA(hwnd, ADMIN_ALL_TIME_RADIO, radio, 12);
+				radio[0] = '\0';
 			}
 			else // no buttons checked
 			{
@@ -160,6 +163,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			std::string q = CreateQuery(id, name, radio, ADMIN_SEARCH_LOGINS_BUTTON);
 			MYSQL_RES* res = AdminQueryDB(q);
 
+			mysql_free_result(res);
 			break;
 		}
 		case ADMIN_FINISH:
@@ -622,8 +626,6 @@ void AddAdminControls(HWND hwnd)
 
 	ShowWindow(hWndMemberList, SW_SHOW);
 	ShowWindow(hWndLoginList, SW_SHOW);
-
-	LVITEM lvi;
 }
 
 std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
@@ -644,7 +646,7 @@ std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
 
 	bool idFilled = strcmp("", id);
 	bool nameFilled = strcmp("", name);
-	bool buttonFilled = strcmp("", buttontxt) && strcmp("All", buttontxt) && strcmp("All Time", buttontxt);
+	bool buttonFilled = strcmp("", buttontxt);
 
 	std::string q = "SELECT * FROM " + table;
 	std::string idVal;
@@ -671,19 +673,19 @@ std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
 			else
 			{
 				buttonVal = "date_time >= DATE_SUB(NOW(), INTERVAL ";
-				if (buttontxt == "Past Day")
+				if (!strcmp("Past Day", buttontxt))
 				{
 					buttonVal += "1 DAY)";
 				}
-				else if (buttontxt == "Past Week")
+				else if (!strcmp("Past Week", buttontxt))
 				{
 					buttonVal += "7 DAY)";
 				}
-				else if (buttontxt == "Past Month")
+				else if (!strcmp("Past Month", buttontxt))
 				{
 					buttonVal += "1 MONTH)";
 				}
-				else if (buttontxt == "Past Year")
+				else if (!strcmp("Past Year", buttontxt))
 				{
 					buttonVal += "1 YEAR)";
 				}
@@ -753,11 +755,13 @@ MYSQL_RES* AdminQueryDB(std::string query)
 	if (!qstate) // mysql_query functioned correctly
 	{
 		res = mysql_store_result(conn);
+		mysql_close(conn);
 		return res;
 	}
 	else
 	{
 		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
+		mysql_close(conn);
 		return NULL;
 	}
 }
