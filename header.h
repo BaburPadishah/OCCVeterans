@@ -25,6 +25,8 @@ std::string registerMember(LPSTR id, LPSTR FName, LPSTR LName, LPSTR Branch);
 
 int AdminWin();
 void AddAdminControls(HWND hwnd);
+std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID);
+MYSQL_RES* AdminQueryDB(std::string query);
 
 // Screen resolution
 const int SCREEN_W = GetSystemMetrics(SM_CXSCREEN);

@@ -72,9 +72,101 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	case WM_COMMAND:
 		switch (wParam)
 		{
+		case ADMIN_SEARCH_MEMBERS_BUTTON:
+		{
+			char id[9], name[40], radio[12];
+
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) == 0)
+			{
+				id[0] = '\0';
+			}
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_NAME_EDIT, name, 40) == 0)
+			{
+				name[0] = '\0';
+			}
+
+			if (IsDlgButtonChecked(hwnd, AIRFORCE_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, AIRFORCE_RADIO, radio, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, ARMY_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, ARMY_RADIO, radio, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, COASTGUARD_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, COASTGUARD_RADIO, radio, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, NAVY_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, NAVY_RADIO, radio, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, MARINES_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, MARINES_RADIO, radio, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, ALL_BRANCH_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, ALL_BRANCH_RADIO, radio, 12);
+			}
+			else // no buttons checked
+			{
+				radio[0] = '\0';
+			}
+
+			std::string q = CreateQuery(id, name, radio, ADMIN_SEARCH_MEMBERS_BUTTON);
+			MYSQL_RES* res = AdminQueryDB(q);
+
+			break;
+		}
+		case ADMIN_SEARCH_LOGINS_BUTTON:
+		{
+			char id[9], name[40], radio[12];
+
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) == 0)
+			{
+				id[0] = '\0';
+			}
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_NAME_EDIT, name, 40) == 0)
+			{
+				name[0] = '\0';
+			}
+
+			if (IsDlgButtonChecked(hwnd, ADMIN_PAST_DAY_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, ADMIN_PAST_DAY_RADIO, radio, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_WEEK_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, ADMIN_PAST_WEEK_RADIO, radio, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_MONTH_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, ADMIN_PAST_MONTH_RADIO, radio, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_YEAR_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, ADMIN_PAST_YEAR_RADIO, radio, 12);
+			}
+			else if (IsDlgButtonChecked(hwnd, ADMIN_ALL_TIME_RADIO) == BST_CHECKED)
+			{
+				GetDlgItemTextA(hwnd, ADMIN_ALL_TIME_RADIO, radio, 12);
+			}
+			else // no buttons checked
+			{
+				radio[0] = '\0';
+			}
+
+			std::string q = CreateQuery(id, name, radio, ADMIN_SEARCH_LOGINS_BUTTON);
+			MYSQL_RES* res = AdminQueryDB(q);
+
+			break;
+		}
 		case ADMIN_FINISH:
+		{
 			DestroyWindow(hwnd);
 			break;
+		}
 		}
 		return 0;
 		break;
@@ -139,11 +231,11 @@ void AddAdminControls(HWND hwnd)
 	);
 
 	CreateWindow(L"STATIC",
-		L"Search by Name:",
+		L"Search by Name (Last, First):",
 		WS_VISIBLE | WS_CHILD | SS_RIGHT,
-		ADMIN_WIDTH / 4 - STATIC_WIDTH,
+		ADMIN_WIDTH / 4 - STATIC_WIDTH * 2,
 		ADMIN_HEIGHT / 60 + 60,
-		STATIC_WIDTH,
+		STATIC_WIDTH * 2,
 		STATIC_HEIGHT,
 		hwnd,
 		(HMENU)ADMIN_SEARCH_NAME_STATIC,
@@ -181,7 +273,7 @@ void AddAdminControls(HWND hwnd)
 	CreateWindow(L"EDIT",
 		L"",
 		WS_VISIBLE | WS_BORDER | WS_CHILD | SS_LEFT,
-		ADMIN_WIDTH / 4 + 15,
+		ADMIN_WIDTH / 4 + 5,
 		ADMIN_HEIGHT / 60 + 30,
 		STATIC_WIDTH,
 		STATIC_HEIGHT,
@@ -194,7 +286,7 @@ void AddAdminControls(HWND hwnd)
 	CreateWindow(L"EDIT",
 		L"",
 		WS_VISIBLE | WS_BORDER | WS_CHILD | SS_LEFT,
-		ADMIN_WIDTH / 4 + 15,
+		ADMIN_WIDTH / 4 + 5,
 		ADMIN_HEIGHT / 60 + 60,
 		STATIC_WIDTH,
 		STATIC_HEIGHT,
@@ -210,7 +302,7 @@ void AddAdminControls(HWND hwnd)
 		L"Air Force",
 		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON
 		| WS_TABSTOP | WS_GROUP,
-		ADMIN_WIDTH / 4 + 15,
+		ADMIN_WIDTH / 4 + 5,
 		ADMIN_HEIGHT / 60 + 90,
 		100,
 		EDIT_HEIGHT,
@@ -537,14 +629,19 @@ void AddAdminControls(HWND hwnd)
 std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
 {
 	std::string table;
-	if (CTRL_ID == AIRFORCE_RADIO || CTRL_ID == NAVY_RADIO || CTRL_ID == ARMY_RADIO || CTRL_ID == COASTGUARD_RADIO || CTRL_ID == MARINES_RADIO)
+	if (CTRL_ID == ADMIN_SEARCH_MEMBERS_BUTTON)
 	{
 		table = "members";
 	}
-	else
+	else if (CTRL_ID == ADMIN_SEARCH_LOGINS_BUTTON)
 	{
 		table = "logins";
 	}
+	else
+	{
+		return "error";
+	}
+
 	bool idFilled = strcmp("", id);
 	bool nameFilled = strcmp("", name);
 	bool buttonFilled = strcmp("", buttontxt) && strcmp("All", buttontxt) && strcmp("All Time", buttontxt);
@@ -592,9 +689,76 @@ std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
 				}
 			}
 		}
+
+		if (!idFilled && !nameFilled && buttonFilled)
+		{
+			q += buttonVal;
+		}
+		else if (!idFilled && nameFilled && !buttonFilled)
+		{
+			q += nameVal;
+		}
+		else if (!idFilled && nameFilled && buttonFilled)
+		{
+			q += nameVal + " AND " + buttonVal;
+		}
+		else if (idFilled && !nameFilled && !buttonFilled)
+		{
+			q += idVal;
+		}
+		else if (idFilled && !nameFilled && buttonFilled)
+		{
+			q += idVal + " AND " + buttonVal;
+		}
+		else if (idFilled && nameFilled && !buttonFilled)
+		{
+			q += idVal + " AND " + nameVal;
+		}
+		else if (idFilled && nameFilled && buttonFilled)
+		{
+			q += idVal + " AND " + nameVal + " AND " + buttonVal;
+		}
 	}
-	else  // no user input
+	
+	return q;
+}
+
+MYSQL_RES* AdminQueryDB(std::string query)
+{
+	const char* q = query.c_str();
+
+	MYSQL* conn;
+	MYSQL_RES* res;
+	int qstate;
+	conn = mysql_init(0);
+
+	conn = mysql_real_connect(
+		conn,
+		"localhost",
+		"root",
+		"Garamantes45!",
+		"occ_veteran_club",
+		3306,
+		nullptr,
+		0
+	);
+
+	if (!conn)
 	{
-		return q;
+		return 0;
+	}
+
+	qstate = mysql_query(conn, q);
+
+	if (!qstate) // mysql_query functioned correctly
+	{
+		res = mysql_store_result(conn);
+		return res;
+	}
+	else
+	{
+		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
+		return NULL;
 	}
 }
+
