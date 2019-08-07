@@ -116,9 +116,46 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			std::string q = CreateQuery(id, name, radio, ADMIN_SEARCH_MEMBERS_BUTTON);
 			MYSQL_RES* res = AdminQueryDB(q);
+			MYSQL_ROW row;
 
+			LVITEM lvI;
+
+			lvI.mask = LVIF_TEXT | LVIF_STATE;
+			lvI.pszText = LPSTR_TEXTCALLBACK;
+			lvI.iItem = 0;
+			lvI.iIndent = 0;
+			lvI.iSubItem = 0;
+			lvI.stateMask = 0;
+			lvI.state = 0;
+
+			while (row = mysql_fetch_row(res))
+			{
+				lvI.iSubItem = 0;
+
+				wchar_t* wrow = new wchar_t;
+				size_t retval;
+				rsize_t dstsz = 20;
+				rsize_t len = strlen(row[0]) + 1;
+				mbstowcs_s(&retval, wrow, dstsz, row[0], len);
+				LPWSTR ptr = wrow;
+				lvI.cchTextMax = len;
+				lvI.pszText = ptr;
+				ListView_InsertItem(GetDlgItem(hwnd, ADMIN_MEMBER_LIST), &lvI);
+
+				for (int j = 1; j < 3; ++j)
+				{
+					++lvI.iSubItem;
+					rsize_t len = strlen(row[0]) + 1;
+					mbstowcs_s(&retval, wrow, dstsz, row[j], len);
+					ptr = wrow;
+					lvI.cchTextMax = len;
+					lvI.pszText = ptr;
+					ListView_InsertItem(GetDlgItem(hwnd, ADMIN_MEMBER_LIST), &lvI);
+				}
+
+				++lvI.iItem;
+			}
 			
-
 			mysql_free_result(res);
 			break;
 		}
@@ -162,6 +199,42 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 			std::string q = CreateQuery(id, name, radio, ADMIN_SEARCH_LOGINS_BUTTON);
 			MYSQL_RES* res = AdminQueryDB(q);
+			MYSQL_ROW row;
+
+			LVITEM lvI;
+
+			lvI.mask = LVIF_TEXT | LVIF_STATE;
+			lvI.pszText = LPSTR_TEXTCALLBACK;
+			lvI.iItem = 0;
+			lvI.iIndent = 0;
+			lvI.iSubItem = 0;
+			lvI.stateMask = 0;
+			lvI.state = 0;
+
+			while (row = mysql_fetch_row(res))
+			{
+				lvI.iSubItem = 0;
+
+				wchar_t* wrow = new wchar_t;
+				size_t retval;
+				rsize_t dstsz = 20;
+				mbstowcs_s(&retval, wrow, dstsz, row[0], strlen(row[0]) + 1);
+				LPWSTR ptr = wrow;
+				lvI.pszText = ptr;
+				ListView_InsertItem(GetDlgItem(hwnd, ADMIN_LOGIN_LIST), &lvI);
+
+				for (int j = 1; j < 3; ++j)
+				{
+					++lvI.iSubItem;
+
+					mbstowcs_s(&retval, wrow, dstsz, row[j], strlen(row[j]) + 1);
+					ptr = wrow;
+					lvI.pszText = ptr;
+					ListView_SetItem(GetDlgItem(hwnd, ADMIN_LOGIN_LIST), &lvI);
+				}
+
+				++lvI.iItem;
+			}
 
 			mysql_free_result(res);
 			break;
@@ -437,11 +510,11 @@ void AddAdminControls(HWND hwnd)
 	);
 
 	CreateWindow(L"STATIC",
-		L"Search by Name:",
+		L"Search by Name (Last, First):",
 		WS_VISIBLE | WS_CHILD | SS_RIGHT,
-		3 * ADMIN_WIDTH / 4 - STATIC_WIDTH,
+		3 * ADMIN_WIDTH / 4 - STATIC_WIDTH * 2,
 		ADMIN_HEIGHT / 60 + 60,
-		STATIC_WIDTH,
+		STATIC_WIDTH * 2,
 		STATIC_HEIGHT,
 		hwnd,
 		(HMENU)ADMIN_SEARCH_NAME_STATIC,
