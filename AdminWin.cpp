@@ -74,6 +74,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		{
 		case ADMIN_SEARCH_MEMBERS_BUTTON:
 		{
+			ListView_DeleteAllItems(GetDlgItem(hwnd, ADMIN_MEMBER_LIST));
 			char id[9], name[40], radio[12];
 
 			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) == 0)
@@ -119,6 +120,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			MYSQL_ROW row;
 
 			LVITEM lvI;
+			memset(&lvI, 0, sizeof(LVITEM));
 
 			lvI.mask = LVIF_TEXT | LVIF_STATE;
 			lvI.pszText = LPSTR_TEXTCALLBACK;
@@ -145,12 +147,11 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				for (int j = 1; j < 3; ++j)
 				{
 					++lvI.iSubItem;
-					rsize_t len = strlen(row[0]) + 1;
+					rsize_t len = strlen(row[j]) + 1;
 					mbstowcs_s(&retval, wrow, dstsz, row[j], len);
 					ptr = wrow;
 					lvI.cchTextMax = len;
-					lvI.pszText = ptr;
-					ListView_InsertItem(GetDlgItem(hwnd, ADMIN_MEMBER_LIST), &lvI);
+					ListView_SetItemText(GetDlgItem(hwnd, ADMIN_MEMBER_LIST), lvI.iItem, j, ptr);
 				}
 
 				++lvI.iItem;
@@ -161,6 +162,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		}
 		case ADMIN_SEARCH_LOGINS_BUTTON:
 		{
+			ListView_DeleteAllItems(GetDlgItem(hwnd, ADMIN_LOGIN_LIST));
 			char id[9], name[40], radio[12];
 
 			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_ID_EDIT, id, 9) == 0)
@@ -202,6 +204,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			MYSQL_ROW row;
 
 			LVITEM lvI;
+			memset(&lvI, 0, sizeof(LVITEM));
 
 			lvI.mask = LVIF_TEXT | LVIF_STATE;
 			lvI.pszText = LPSTR_TEXTCALLBACK;
@@ -226,11 +229,11 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				for (int j = 1; j < 3; ++j)
 				{
 					++lvI.iSubItem;
-
-					mbstowcs_s(&retval, wrow, dstsz, row[j], strlen(row[j]) + 1);
+					rsize_t len = strlen(row[j]) + 1;
+					mbstowcs_s(&retval, wrow, dstsz, row[j], len);
 					ptr = wrow;
-					lvI.pszText = ptr;
-					ListView_SetItem(GetDlgItem(hwnd, ADMIN_LOGIN_LIST), &lvI);
+					lvI.cchTextMax = len;
+					ListView_SetItemText(GetDlgItem(hwnd, ADMIN_LOGIN_LIST), lvI.iItem, j, ptr);
 				}
 
 				++lvI.iItem;
@@ -645,7 +648,7 @@ void AddAdminControls(HWND hwnd)
 	HWND hWndMemberList = CreateWindow(
 		WC_LISTVIEW,
 		L"",
-		WS_CHILD | WS_BORDER | LVS_REPORT | LVS_EDITLABELS,
+		WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_EDITLABELS,
 		ADMIN_WIDTH / 4 - LV_WIDTH / 2,
 		ADMIN_HEIGHT / 5,
 		LV_WIDTH,
@@ -659,7 +662,7 @@ void AddAdminControls(HWND hwnd)
 	HWND hWndLoginList = CreateWindow(
 		WC_LISTVIEW,
 		L"",
-		WS_CHILD | WS_BORDER | LVS_REPORT | LVS_EDITLABELS,
+		WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_EDITLABELS,
 		3 * ADMIN_WIDTH / 4 - LV_WIDTH / 2,
 		ADMIN_HEIGHT / 5,
 		LV_WIDTH,
@@ -696,9 +699,6 @@ void AddAdminControls(HWND hwnd)
 	ListView_InsertColumn(hWndMemberList, 2, &lvc);
 	lvc.pszText = dateHeader;
 	ListView_InsertColumn(hWndLoginList, 2, &lvc);
-
-	ShowWindow(hWndMemberList, SW_SHOW);
-	ShowWindow(hWndLoginList, SW_SHOW);
 }
 
 std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
