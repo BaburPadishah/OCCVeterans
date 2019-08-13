@@ -1,5 +1,7 @@
 #include "header.h"
 
+MYSQL* AdminConn;
+
 int AdminWin()
 {
 	// Window Class Registration
@@ -30,6 +32,28 @@ int AdminWin()
 
 	if (hwnd == NULL)
 	{
+		return 0;
+	}
+
+	AdminConn = mysql_init(0);
+	AdminConn = mysql_real_connect(
+		AdminConn,
+		"localhost",
+		"root",
+		"Garamantes45!",
+		"occ_veteran_club",
+		3306,
+		nullptr,
+		0
+	);
+
+	if (AdminConn)
+	{
+		std::cout << "Connection success" << std::endl;
+	}
+	else
+	{
+		std::cerr << "Connection failed: " << mysql_error(AdminConn) << std::endl;
 		return 0;
 	}
 
@@ -153,7 +177,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 					lvI.cchTextMax = len;
 					ListView_SetItemText(GetDlgItem(hwnd, ADMIN_MEMBER_LIST), lvI.iItem, j, ptr);
 				}
-
+				delete[] wrow;
 				++lvI.iItem;
 			}
 			
@@ -235,7 +259,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 					lvI.cchTextMax = len;
 					ListView_SetItemText(GetDlgItem(hwnd, ADMIN_LOGIN_LIST), lvI.iItem, j, ptr);
 				}
-
+				delete[] wrow;
 				++lvI.iItem;
 			}
 
@@ -244,6 +268,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		}
 		case ADMIN_FINISH:
 		{
+			mysql_close(AdminConn);
 			DestroyWindow(hwnd);
 			break;
 		}
@@ -252,6 +277,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		break;
 
 	case WM_DESTROY:
+		mysql_close(AdminConn);
 		PostQuitMessage(0);
 		return 0;
 		break;
@@ -801,40 +827,19 @@ std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
 MYSQL_RES* AdminQueryDB(std::string query)
 {
 	const char* q = query.c_str();
-
-	MYSQL* conn;
 	MYSQL_RES* res;
 	int qstate;
-	conn = mysql_init(0);
 
-	conn = mysql_real_connect(
-		conn,
-		"localhost",
-		"root",
-		"Garamantes45!",
-		"occ_veteran_club",
-		3306,
-		nullptr,
-		0
-	);
-
-	if (!conn)
-	{
-		return 0;
-	}
-
-	qstate = mysql_query(conn, q);
+	qstate = mysql_query(AdminConn, q);
 
 	if (!qstate) // mysql_query functioned correctly
 	{
-		res = mysql_store_result(conn);
-		mysql_close(conn);
+		res = mysql_store_result(AdminConn);
 		return res;
 	}
 	else
 	{
-		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
-		mysql_close(conn);
+		std::cerr << "Query failed: " << mysql_error(AdminConn) << std::endl;
 		return NULL;
 	}
 }
