@@ -9,6 +9,5 @@ If a user enters in an administrator password, another window appears which allo
 
 TO DO:
 1) create a message that appears for five seconds after a successful sign in
-2) display relevant entries in admin window's list controls
-3) allow admin to query the database using controls provided
-4) make tab key switch between edit controls
+2) make tab key switch between edit controls
+3) allow admin to sort results by column 
