@@ -1,5 +1,13 @@
 Development Timeline (Add any new entries above the older ones)
 
+August 15th, 2019
+	BUG FIXES:
+		Member list is now sorted alphabetically by last name, login list sorted by date
+	KNOWN BUGS:
+		Searching as an admin, clicking finish, then attempting to do anything else in the main window causes a crash
+		Crashes sometimes when admin finish button is clicked (PostQuitMessage)
+		Regular close button no longer functions on Admin window
+
 July 30th, 2019
 	NEW FEATURES:
 		Typing in admin password creates an admin window with lists of members
