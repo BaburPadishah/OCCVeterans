@@ -83,17 +83,21 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 	//disables dragging
 	case WM_NCLBUTTONDOWN:
+	{
 		if (wParam == HTCAPTION)
 		{
 			return 0;
 		}
 		break;
+	}
 
 	case WM_KEYDOWN:
-		return 0;
+	{
 		break;
+	}
 
 	case WM_COMMAND:
+	{
 		switch (wParam)
 		{
 		case ADMIN_SEARCH_MEMBERS_BUTTON:
@@ -180,14 +184,14 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				delete[] wrow;
 				++lvI.iItem;
 			}
-			
+
 			mysql_free_result(res);
 			break;
 		}
 		case ADMIN_SEARCH_LOGINS_BUTTON:
 		{
 			ListView_DeleteAllItems(GetDlgItem(hwnd, ADMIN_LOGIN_LIST));
-			char id[9], name[40], radio[12];
+			char id[9], name[40], date[16];
 
 			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_ID_EDIT, id, 9) == 0)
 			{
@@ -198,32 +202,38 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				name[0] = '\0';
 			}
 
-			if (IsDlgButtonChecked(hwnd, ADMIN_PAST_DAY_RADIO) == BST_CHECKED)
-			{
-				GetDlgItemTextA(hwnd, ADMIN_PAST_DAY_RADIO, radio, 12);
-			}
-			else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_WEEK_RADIO) == BST_CHECKED)
-			{
-				GetDlgItemTextA(hwnd, ADMIN_PAST_WEEK_RADIO, radio, 12);
-			}
-			else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_MONTH_RADIO) == BST_CHECKED)
-			{
-				GetDlgItemTextA(hwnd, ADMIN_PAST_MONTH_RADIO, radio, 12);
-			}
-			else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_YEAR_RADIO) == BST_CHECKED)
-			{
-				GetDlgItemTextA(hwnd, ADMIN_PAST_YEAR_RADIO, radio, 12);
-			}
-			else if (IsDlgButtonChecked(hwnd, ADMIN_ALL_TIME_RADIO) == BST_CHECKED)
-			{
-				radio[0] = '\0';
-			}
-			else // no buttons checked
-			{
-				radio[0] = '\0';
-			}
+			DATETIMEPICKERINFO* pdtpi = nullptr;
 
-			std::string q = CreateQuery(id, name, radio, ADMIN_SEARCH_LOGINS_BUTTON);
+			DateTime_GetDateTimePickerInfo(GetDlgItem(hwnd, DATE_PICKER), pdtpi);
+
+			GetWindowTextA(pdtpi->hwndEdit, date, 14); // crashes here, pdtpi still points to null
+
+			//if (IsDlgButtonChecked(hwnd, ADMIN_PAST_DAY_RADIO) == BST_CHECKED)
+			//{
+			//	GetDlgItemTextA(hwnd, ADMIN_PAST_DAY_RADIO, radio, 12);
+			//}
+			//else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_WEEK_RADIO) == BST_CHECKED)
+			//{
+			//	GetDlgItemTextA(hwnd, ADMIN_PAST_WEEK_RADIO, radio, 12);
+			//}
+			//else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_MONTH_RADIO) == BST_CHECKED)
+			//{
+			//	GetDlgItemTextA(hwnd, ADMIN_PAST_MONTH_RADIO, radio, 12);
+			//}
+			//else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_YEAR_RADIO) == BST_CHECKED)
+			//{
+			//	GetDlgItemTextA(hwnd, ADMIN_PAST_YEAR_RADIO, radio, 12);
+			//}
+			//else if (IsDlgButtonChecked(hwnd, ADMIN_ALL_TIME_RADIO) == BST_CHECKED)
+			//{
+			//	radio[0] = '\0';
+			//}
+			//else // no buttons checked
+			//{
+			//	radio[0] = '\0';
+			//}
+
+			std::string q = CreateQuery(id, name, date, ADMIN_SEARCH_LOGINS_BUTTON);
 			MYSQL_RES* res = AdminQueryDB(q);
 			MYSQL_ROW row;
 
@@ -268,19 +278,19 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		}
 		case ADMIN_FINISH:
 		{
-			mysql_close(AdminConn);
 			DestroyWindow(hwnd);
 			break;
 		}
 		}
-		return 0;
 		break;
+	}
 
 	case WM_DESTROY:
+	{
 		mysql_close(AdminConn);
 		PostQuitMessage(0);
 		return 0;
-		break;
+	}
 
 	case WM_PAINT:
 	{
@@ -288,11 +298,14 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		HDC hdc = BeginPaint(hwnd, &ps);
 		FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_MENU + 1));
 		EndPaint(hwnd, &ps);
+		break;
+	}
+	default:
+	{
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	}
 	}
 	return 0;
-	break;
-	}
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 void AddAdminControls(HWND hwnd)
@@ -590,7 +603,7 @@ void AddAdminControls(HWND hwnd)
 		NULL
 	);
 
-	CreateWindowEx(
+	/*CreateWindowEx(
 		0,
 		L"BUTTON",
 		L"Past Day",
@@ -663,11 +676,12 @@ void AddAdminControls(HWND hwnd)
 		(HMENU)ADMIN_ALL_TIME_RADIO,
 		NULL,
 		NULL
-	);
+	);*/
 
 	// List-View Controls
 
 	INITCOMMONCONTROLSEX icex;
+	icex.dwSize = sizeof(icex);
 	icex.dwICC = ICC_LISTVIEW_CLASSES;
 	InitCommonControlsEx(&icex);
 
@@ -711,20 +725,49 @@ void AddAdminControls(HWND hwnd)
 
 	lvc.iSubItem = 0;
 	lvc.pszText = idHeader;
-	lvc.cx = LV_WIDTH / 3;
+	lvc.cx = LV_WIDTH / 4;
 	ListView_InsertColumn(hWndMemberList, 0, &lvc);
 	ListView_InsertColumn(hWndLoginList, 0, &lvc);
 
 	lvc.iSubItem = 1;
 	lvc.pszText = nameHeader;
+	lvc.cx = 3 * LV_WIDTH / 8;
 	ListView_InsertColumn(hWndMemberList, 1, &lvc);
 	ListView_InsertColumn(hWndLoginList, 1, &lvc);
 
 	lvc.iSubItem = 2;
 	lvc.pszText = branchHeader;
+	lvc.cx = 3 * LV_WIDTH / 8;
 	ListView_InsertColumn(hWndMemberList, 2, &lvc);
 	lvc.pszText = dateHeader;
 	ListView_InsertColumn(hWndLoginList, 2, &lvc);
+
+	// date and time picker control
+	icex.dwICC = ICC_DATE_CLASSES;
+	InitCommonControlsEx(&icex);
+
+	HWND hwndDP = CreateWindowEx(
+		0,
+		DATETIMEPICK_CLASS,
+		TEXT("DateTime"),
+		WS_BORDER | WS_CHILD | WS_VISIBLE,
+		3 * ADMIN_WIDTH / 4 + 5,
+		ADMIN_HEIGHT / 60 + 90,
+		100,
+		EDIT_HEIGHT,
+		hwnd,
+		(HMENU)DATE_PICKER,
+		NULL,
+		NULL
+	);
+
+	DateTime_SetFormat(GetDlgItem(hwnd, DATE_PICKER), L"yyyy - MM - dd");
+
+	DateTime_SetMonthCalStyle(
+		hwndDP,
+		MCS_MULTISELECT | MCS_NOTODAYCIRCLE
+	); // doesn't work?
+
 }
 
 std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
@@ -771,23 +814,23 @@ std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
 			}
 			else
 			{
-				buttonVal = "date_time >= DATE_SUB(NOW(), INTERVAL ";
-				if (!strcmp("Past Day", buttontxt))
-				{
-					buttonVal += "1 DAY)";
-				}
-				else if (!strcmp("Past Week", buttontxt))
-				{
-					buttonVal += "7 DAY)";
-				}
-				else if (!strcmp("Past Month", buttontxt))
-				{
-					buttonVal += "1 MONTH)";
-				}
-				else if (!strcmp("Past Year", buttontxt))
-				{
-					buttonVal += "1 YEAR)";
-				}
+				buttonVal = "date_time >= '" + static_cast<std::string>(buttontxt) + "'" " AND " + "date_time <= '" + static_cast<std::string>(buttontxt) + "23:59:59'";
+				//if (!strcmp("Past Day", buttontxt))
+				//{
+				//	buttonVal += "1 DAY)";
+				//}
+				//else if (!strcmp("Past Week", buttontxt))
+				//{
+				//	buttonVal += "7 DAY)";
+				//}
+				//else if (!strcmp("Past Month", buttontxt))
+				//{
+				//	buttonVal += "1 MONTH)";
+				//}
+				//else if (!strcmp("Past Year", buttontxt))
+				//{
+				//	buttonVal += "1 YEAR)";
+				//}
 			}
 		}
 
@@ -820,7 +863,16 @@ std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
 			q += idVal + " AND " + nameVal + " AND " + buttonVal;
 		}
 	}
-	
+
+	if (table == "logins")
+	{
+		q += " ORDER BY date_time DESC";
+	}
+	else
+	{
+		q += " ORDER BY name ASC";
+	}
+
 	return q;
 }
 
