@@ -830,6 +830,15 @@ std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
 		}
 	}
 	
+	if (table == "logins")
+	{
+		q += " ORDER BY date_time DESC";
+	}
+	else
+	{
+		q += " ORDER BY name ASC";
+	}
+	
 	return q;
 }
 
