@@ -1,5 +1,6 @@
 #include "header.h"
 
+
 //connect to and query database
 std::string checkMembers(LPSTR id)
 {
@@ -22,7 +23,7 @@ std::string checkMembers(LPSTR id)
 
 	if (!conn)
 	{
-		return 0;
+		return "Bad Connection";
 	}
 
 	std::string result = "not found";
@@ -106,7 +107,7 @@ std::string registerMember(LPSTR id, LPSTR FName, LPSTR LName, LPSTR Branch)
 
 	if (!conn)
 	{
-		return 0;
+		return "Bad Connection";
 	}
 
 	std::string ins = "INSERT INTO members (id, name, branch) VALUES ("
@@ -167,7 +168,7 @@ int newMember(LPSTR data)
 	CreateWindowA(
 		"EDIT",
 		data,
-		WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
+		WS_VISIBLE | WS_CHILD | WS_BORDER | ES_NUMBER | ES_AUTOHSCROLL,
 		REG_WIDTH / 3,
 		REG_HEIGHT / 10,
 		EDIT_WIDTH,
@@ -182,6 +183,8 @@ int newMember(LPSTR data)
 	{
 		return 0;
 	}
+
+	PostMessage(GetDlgItem(regWin, REG_ID_EDIT), EM_LIMITTEXT, 8, 0);
 
 	// Display Window
 	ShowWindow(regWin, SW_SHOW);
@@ -265,8 +268,13 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				GetDlgItemTextA(hwnd, MARINES_RADIO, Branch, 12);
 				filled = TRUE;
 			}
-			EnableWindow(GetDlgItem(hwnd, REG_OK), filled);
 		}
+		else
+		{
+			filled = FALSE;
+		}
+
+		EnableWindow(GetDlgItem(hwnd, REG_OK), filled);
 
 		switch (wParam)
 		{
@@ -277,17 +285,47 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		case REG_OK:
 		{
-			std::string result = registerMember(id, FName, LName, Branch);
+			// validate first and last names
+			char* fp = &FName[0];
+			char* lp = &LName[0];
+			BOOL valid = TRUE;
 
-			time_t tm = time(NULL);
-			char displayTime[26];
-			ctime_s(displayTime, sizeof displayTime, &tm);
-			std::string loginMessage = result + " signed in on " + displayTime;
-			MessageBoxA(hwnd, loginMessage.c_str(), result.c_str(), MB_OK);
+			while (*fp != '\0')
+			{
+				if (!isalpha(*fp) && *fp != '-')
+				{
+					valid = FALSE;
+				}
+				++fp;
+			}
 
-			DestroyWindow(hwnd);
+			while (*lp != '\0')
+			{
+				if (!isalpha(*lp) && *lp != '-')
+				{
+					valid = FALSE;
+				}
+				++lp;
+			}
 
-			return 0;
+			if (valid)
+			{
+				std::string result = registerMember(id, FName, LName, Branch);
+
+				time_t tm = time(NULL);
+				char displayTime[26];
+				ctime_s(displayTime, sizeof displayTime, &tm);
+				std::string loginMessage = result + " signed in on " + displayTime;
+				MessageBoxA(hwnd, loginMessage.c_str(), result.c_str(), MB_OK);
+
+				DestroyWindow(hwnd);
+
+				return 0;
+			}
+			else
+			{
+				MessageBox(hwnd, L"Input not recognized.", L"Error", MB_OK);
+			}
 		}
 		}
 	}

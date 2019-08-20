@@ -1,6 +1,7 @@
 #include "header.h"
 
 MYSQL* AdminConn;
+HWND hwndDP;
 
 int AdminWin()
 {
@@ -104,14 +105,46 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		{
 			ListView_DeleteAllItems(GetDlgItem(hwnd, ADMIN_MEMBER_LIST));
 			char id[9], name[40], radio[12];
+			BOOL valid = TRUE;
 
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) == 0)
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) != 0)
+			{
+				char* idp = &id[0];
+				while (*idp != '\0')
+				{
+					++idp;
+				}
+				if (*idp != id[9])
+				{
+					valid = FALSE;
+				}
+			}
+			else
 			{
 				id[0] = '\0';
 			}
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_NAME_EDIT, name, 40) == 0)
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_NAME_EDIT, name, 40) != 0)
+			{
+				//validate name
+				char* pname = &name[0];
+				while (pname != '\0')
+				{
+					if (!isalpha(*pname) && *pname != '-' && *pname != ',')
+					{
+						valid = FALSE;
+					}
+					++pname;
+				}
+			}
+			else
 			{
 				name[0] = '\0';
+			}
+
+			if (!valid)
+			{
+				MessageBox(hwnd, L"Input not recognized.", L"Error", MB_OK);
+				break;
 			}
 
 			if (IsDlgButtonChecked(hwnd, AIRFORCE_RADIO) == BST_CHECKED)
@@ -192,6 +225,42 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		{
 			ListView_DeleteAllItems(GetDlgItem(hwnd, ADMIN_LOGIN_LIST));
 			char id[9], name[40], date[16];
+			BOOL valid = TRUE;
+
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) != 0)
+			{
+				id[0] = '\0';
+				char* idp = &id[0];
+				while (*idp != '\0')
+				{
+					++idp;
+				}
+				if (*idp != id[9])
+				{
+					valid = FALSE;
+				}
+			}
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_NAME_EDIT, name, 40) != 0)
+			{
+				name[0] = '\0';
+				//validate name
+				char* pname = &name[0];
+				while (pname != '\0')
+				{
+					if (!isalpha(*pname) && *pname != '-' && *pname != ',')
+					{
+						valid = FALSE;
+					}
+					++pname;
+				}
+			}
+
+			if (!valid)
+			{
+				MessageBox(hwnd, L"Input not recognized.", L"Error", MB_OK);
+				break;
+			}
+
 
 			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_ID_EDIT, id, 9) == 0)
 			{
@@ -202,36 +271,12 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				name[0] = '\0';
 			}
 
-			DATETIMEPICKERINFO* pdtpi = nullptr;
+			DATETIMEPICKERINFO pdate = { 0 };
+			pdate.cbSize = sizeof(DATETIMEPICKERINFO);
 
-			DateTime_GetDateTimePickerInfo(GetDlgItem(hwnd, DATE_PICKER), pdtpi);
+			DateTime_GetDateTimePickerInfo(hwndDP, &pdate);
 
-			GetWindowTextA(pdtpi->hwndEdit, date, 14); // crashes here, pdtpi still points to null
-
-			//if (IsDlgButtonChecked(hwnd, ADMIN_PAST_DAY_RADIO) == BST_CHECKED)
-			//{
-			//	GetDlgItemTextA(hwnd, ADMIN_PAST_DAY_RADIO, radio, 12);
-			//}
-			//else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_WEEK_RADIO) == BST_CHECKED)
-			//{
-			//	GetDlgItemTextA(hwnd, ADMIN_PAST_WEEK_RADIO, radio, 12);
-			//}
-			//else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_MONTH_RADIO) == BST_CHECKED)
-			//{
-			//	GetDlgItemTextA(hwnd, ADMIN_PAST_MONTH_RADIO, radio, 12);
-			//}
-			//else if (IsDlgButtonChecked(hwnd, ADMIN_PAST_YEAR_RADIO) == BST_CHECKED)
-			//{
-			//	GetDlgItemTextA(hwnd, ADMIN_PAST_YEAR_RADIO, radio, 12);
-			//}
-			//else if (IsDlgButtonChecked(hwnd, ADMIN_ALL_TIME_RADIO) == BST_CHECKED)
-			//{
-			//	radio[0] = '\0';
-			//}
-			//else // no buttons checked
-			//{
-			//	radio[0] = '\0';
-			//}
+			GetWindowTextA(pdate.hwndEdit, date, 15);
 
 			std::string q = CreateQuery(id, name, date, ADMIN_SEARCH_LOGINS_BUTTON);
 			MYSQL_RES* res = AdminQueryDB(q);
@@ -308,467 +353,6 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	return 0;
 }
 
-void AddAdminControls(HWND hwnd)
-{
-	CreateWindow(L"STATIC",
-		L"Member List",
-		WS_VISIBLE | WS_CHILD | SS_CENTER,
-		ADMIN_WIDTH / 4 - STATIC_WIDTH / 2,
-		ADMIN_HEIGHT / 60,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_MEMBER_HEADER,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"STATIC",
-		L"Login List",
-		WS_VISIBLE | WS_CHILD | SS_CENTER,
-		3 * ADMIN_WIDTH / 4 - STATIC_WIDTH / 2,
-		ADMIN_HEIGHT / 60,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_LOGIN_HEADER,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"STATIC",
-		L"Search by ID:",
-		WS_VISIBLE | WS_CHILD | SS_RIGHT,
-		ADMIN_WIDTH / 4 - STATIC_WIDTH,
-		ADMIN_HEIGHT / 60 + 30,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_ID_STATIC,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"STATIC",
-		L"Search by Name (Last, First):",
-		WS_VISIBLE | WS_CHILD | SS_RIGHT,
-		ADMIN_WIDTH / 4 - STATIC_WIDTH * 2,
-		ADMIN_HEIGHT / 60 + 60,
-		STATIC_WIDTH * 2,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_NAME_STATIC,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"STATIC",
-		L"Search by Branch:",
-		WS_VISIBLE | WS_CHILD | SS_RIGHT,
-		ADMIN_WIDTH / 4 - STATIC_WIDTH,
-		ADMIN_HEIGHT / 60 + 90,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_BRANCH_STATIC,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(
-		L"BUTTON",
-		L"Finish",
-		WS_VISIBLE | WS_BORDER | WS_CHILD,
-		9 * ADMIN_WIDTH / 10 - BUTTON_WIDTH / 2,
-		9 * ADMIN_HEIGHT / 10,
-		BUTTON_WIDTH,
-		BUTTON_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_FINISH,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"EDIT",
-		L"",
-		WS_VISIBLE | WS_BORDER | WS_CHILD | SS_LEFT,
-		ADMIN_WIDTH / 4 + 5,
-		ADMIN_HEIGHT / 60 + 30,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_MEMBERS_ID_EDIT,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"EDIT",
-		L"",
-		WS_VISIBLE | WS_BORDER | WS_CHILD | SS_LEFT,
-		ADMIN_WIDTH / 4 + 5,
-		ADMIN_HEIGHT / 60 + 60,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_MEMBERS_NAME_EDIT,
-		NULL,
-		NULL
-	);
-
-	CreateWindowEx(
-		WS_EX_WINDOWEDGE,
-		L"BUTTON",
-		L"Air Force",
-		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON
-		| WS_TABSTOP | WS_GROUP,
-		ADMIN_WIDTH / 4 + 5,
-		ADMIN_HEIGHT / 60 + 90,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)AIRFORCE_RADIO,
-		NULL,
-		NULL
-	);
-
-	// Create Army radio button
-	CreateWindowEx(
-		WS_EX_WINDOWEDGE,
-		L"BUTTON",
-		L"Army",
-		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
-		ADMIN_WIDTH / 4 + 5,
-		ADMIN_HEIGHT / 60 + 110,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)ARMY_RADIO,
-		NULL,
-		NULL
-	);
-
-	//Create Coast Guard radio button
-	CreateWindowEx(
-		WS_EX_WINDOWEDGE,
-		L"BUTTON",
-		L"Coast Guard",
-		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
-		ADMIN_WIDTH / 4 + 5,
-		ADMIN_HEIGHT / 60 + 130,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)COASTGUARD_RADIO,
-		NULL,
-		NULL
-	);
-
-	// Create Marines radio button
-	CreateWindowEx(
-		WS_EX_WINDOWEDGE,
-		L"BUTTON",
-		L"Marines",
-		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
-		ADMIN_WIDTH / 4 + 115,
-		ADMIN_HEIGHT / 60 + 90,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)MARINES_RADIO,
-		NULL,
-		NULL
-	);
-
-	// Create Navy radio button
-	CreateWindowEx(
-		WS_EX_WINDOWEDGE,
-		L"BUTTON",
-		L"Navy",
-		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
-		ADMIN_WIDTH / 4 + 115,
-		ADMIN_HEIGHT / 60 + 110,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)NAVY_RADIO,
-		NULL,
-		NULL
-	);
-
-	CreateWindowEx(
-		WS_EX_WINDOWEDGE,
-		L"BUTTON",
-		L"All",
-		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
-		ADMIN_WIDTH / 4 + 115,
-		ADMIN_HEIGHT / 60 + 130,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)ALL_BRANCH_RADIO,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(
-		L"BUTTON",
-		L"Search Members",
-		WS_VISIBLE | WS_BORDER | WS_CHILD,
-		ADMIN_WIDTH / 4 - LV_WIDTH / 2,
-		ADMIN_HEIGHT / 5 - BUTTON_HEIGHT - 5,
-		BUTTON_WIDTH * 2,
-		BUTTON_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_MEMBERS_BUTTON,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(
-		L"BUTTON",
-		L"Search Logins",
-		WS_VISIBLE | WS_BORDER | WS_CHILD,
-		3 * ADMIN_WIDTH / 4 - LV_WIDTH / 2,
-		ADMIN_HEIGHT / 5 - BUTTON_HEIGHT - 5,
-		BUTTON_WIDTH * 2,
-		BUTTON_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_LOGINS_BUTTON,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"STATIC",
-		L"Search by ID:",
-		WS_VISIBLE | WS_CHILD | SS_RIGHT,
-		3 * ADMIN_WIDTH / 4 - STATIC_WIDTH,
-		ADMIN_HEIGHT / 60 + 30,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_ID_STATIC,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"STATIC",
-		L"Search by Name (Last, First):",
-		WS_VISIBLE | WS_CHILD | SS_RIGHT,
-		3 * ADMIN_WIDTH / 4 - STATIC_WIDTH * 2,
-		ADMIN_HEIGHT / 60 + 60,
-		STATIC_WIDTH * 2,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_NAME_STATIC,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"STATIC",
-		L"Search by Date:",
-		WS_VISIBLE | WS_CHILD | SS_RIGHT,
-		3 * ADMIN_WIDTH / 4 - STATIC_WIDTH,
-		ADMIN_HEIGHT / 60 + 90,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_BRANCH_STATIC,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"EDIT",
-		L"",
-		WS_VISIBLE | WS_BORDER | WS_CHILD | SS_LEFT,
-		3 * ADMIN_WIDTH / 4 + 5,
-		ADMIN_HEIGHT / 60 + 30,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_LOGINS_ID_EDIT,
-		NULL,
-		NULL
-	);
-
-	CreateWindow(L"EDIT",
-		L"",
-		WS_VISIBLE | WS_BORDER | WS_CHILD | SS_LEFT,
-		3 * ADMIN_WIDTH / 4 + 5,
-		ADMIN_HEIGHT / 60 + 60,
-		STATIC_WIDTH,
-		STATIC_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_SEARCH_LOGINS_NAME_EDIT,
-		NULL,
-		NULL
-	);
-
-	/*CreateWindowEx(
-		0,
-		L"BUTTON",
-		L"Past Day",
-		WS_VISIBLE | WS_CHILD | WS_TABSTOP | WS_GROUP | BS_AUTORADIOBUTTON,
-		3 * ADMIN_WIDTH / 4 + 5,
-		ADMIN_HEIGHT / 60 + 90,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_PAST_DAY_RADIO,
-		NULL,
-		NULL
-	);
-
-	CreateWindowEx(
-		0,
-		L"BUTTON",
-		L"Past Week",
-		WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_AUTORADIOBUTTON,
-		3 * ADMIN_WIDTH / 4 + 5,
-		ADMIN_HEIGHT / 60 + 110,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_PAST_WEEK_RADIO,
-		NULL,
-		NULL
-	);
-
-	CreateWindowEx(
-		0,
-		L"BUTTON",
-		L"Past Month",
-		WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_AUTORADIOBUTTON,
-		3 * ADMIN_WIDTH / 4 + 5,
-		ADMIN_HEIGHT / 60 + 130,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_PAST_MONTH_RADIO,
-		NULL,
-		NULL
-	);
-
-	CreateWindowEx(
-		0,
-		L"BUTTON",
-		L"Past Year",
-		WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_AUTORADIOBUTTON,
-		3 * ADMIN_WIDTH / 4 + 105,
-		ADMIN_HEIGHT / 60 + 90,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_PAST_YEAR_RADIO,
-		NULL,
-		NULL
-	);
-
-	CreateWindowEx(
-		0,
-		L"BUTTON",
-		L"All Time",
-		WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_AUTORADIOBUTTON,
-		3 * ADMIN_WIDTH / 4 + 105,
-		ADMIN_HEIGHT / 60 + 110,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_ALL_TIME_RADIO,
-		NULL,
-		NULL
-	);*/
-
-	// List-View Controls
-
-	INITCOMMONCONTROLSEX icex;
-	icex.dwSize = sizeof(icex);
-	icex.dwICC = ICC_LISTVIEW_CLASSES;
-	InitCommonControlsEx(&icex);
-
-	HWND hWndMemberList = CreateWindow(
-		WC_LISTVIEW,
-		L"",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_EDITLABELS,
-		ADMIN_WIDTH / 4 - LV_WIDTH / 2,
-		ADMIN_HEIGHT / 5,
-		LV_WIDTH,
-		LV_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_MEMBER_LIST,
-		NULL,
-		NULL
-	);
-
-	HWND hWndLoginList = CreateWindow(
-		WC_LISTVIEW,
-		L"",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_EDITLABELS,
-		3 * ADMIN_WIDTH / 4 - LV_WIDTH / 2,
-		ADMIN_HEIGHT / 5,
-		LV_WIDTH,
-		LV_HEIGHT,
-		hwnd,
-		(HMENU)ADMIN_LOGIN_LIST,
-		NULL,
-		NULL
-	);
-
-	WCHAR idHeader[3] = L"ID";
-	WCHAR nameHeader[5] = L"Name";
-	WCHAR branchHeader[7] = L"Branch";
-	WCHAR dateHeader[5] = L"Date";
-
-	LVCOLUMN lvc;
-
-	lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
-	lvc.fmt = LVCFMT_LEFT;
-
-	lvc.iSubItem = 0;
-	lvc.pszText = idHeader;
-	lvc.cx = LV_WIDTH / 4;
-	ListView_InsertColumn(hWndMemberList, 0, &lvc);
-	ListView_InsertColumn(hWndLoginList, 0, &lvc);
-
-	lvc.iSubItem = 1;
-	lvc.pszText = nameHeader;
-	lvc.cx = 3 * LV_WIDTH / 8;
-	ListView_InsertColumn(hWndMemberList, 1, &lvc);
-	ListView_InsertColumn(hWndLoginList, 1, &lvc);
-
-	lvc.iSubItem = 2;
-	lvc.pszText = branchHeader;
-	lvc.cx = 3 * LV_WIDTH / 8;
-	ListView_InsertColumn(hWndMemberList, 2, &lvc);
-	lvc.pszText = dateHeader;
-	ListView_InsertColumn(hWndLoginList, 2, &lvc);
-
-	// date and time picker control
-	icex.dwICC = ICC_DATE_CLASSES;
-	InitCommonControlsEx(&icex);
-
-	HWND hwndDP = CreateWindowEx(
-		0,
-		DATETIMEPICK_CLASS,
-		TEXT("DateTime"),
-		WS_BORDER | WS_CHILD | WS_VISIBLE,
-		3 * ADMIN_WIDTH / 4 + 5,
-		ADMIN_HEIGHT / 60 + 90,
-		100,
-		EDIT_HEIGHT,
-		hwnd,
-		(HMENU)DATE_PICKER,
-		NULL,
-		NULL
-	);
-
-	DateTime_SetFormat(GetDlgItem(hwnd, DATE_PICKER), L"yyyy - MM - dd");
-
-	DateTime_SetMonthCalStyle(
-		hwndDP,
-		MCS_MULTISELECT | MCS_NOTODAYCIRCLE
-	); // doesn't work?
-
-}
 
 std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
 {
@@ -814,23 +398,12 @@ std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
 			}
 			else
 			{
-				buttonVal = "date_time >= '" + static_cast<std::string>(buttontxt) + "'" " AND " + "date_time <= '" + static_cast<std::string>(buttontxt) + "23:59:59'";
-				//if (!strcmp("Past Day", buttontxt))
-				//{
-				//	buttonVal += "1 DAY)";
-				//}
-				//else if (!strcmp("Past Week", buttontxt))
-				//{
-				//	buttonVal += "7 DAY)";
-				//}
-				//else if (!strcmp("Past Month", buttontxt))
-				//{
-				//	buttonVal += "1 MONTH)";
-				//}
-				//else if (!strcmp("Past Year", buttontxt))
-				//{
-				//	buttonVal += "1 YEAR)";
-				//}
+				buttonVal = "date_time >= '" 
+					+ static_cast<std::string>(buttontxt) 
+					+ "'" " AND " 
+					+ "date_time <= '" 
+					+ static_cast<std::string>(buttontxt) 
+					+ "23:59:59'";
 			}
 		}
 
