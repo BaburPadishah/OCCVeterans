@@ -114,7 +114,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				{
 					++idp;
 				}
-				if (*idp != id[9])
+				if (*idp != id[8])
 				{
 					valid = FALSE;
 				}
@@ -195,7 +195,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				lvI.iSubItem = 0;
 
-				wchar_t* wrow = new wchar_t;
+				wchar_t* wrow = new wchar_t[40];
 				size_t retval;
 				rsize_t dstsz = 20;
 				rsize_t len = strlen(row[0]) + 1;
@@ -235,7 +235,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				{
 					++idp;
 				}
-				if (*idp != id[9])
+				if (*idp != id[8])
 				{
 					valid = FALSE;
 				}
@@ -271,12 +271,14 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				name[0] = '\0';
 			}
 
+
 			DATETIMEPICKERINFO pdate = { 0 };
 			pdate.cbSize = sizeof(DATETIMEPICKERINFO);
 
 			DateTime_GetDateTimePickerInfo(hwndDP, &pdate);
 
 			GetWindowTextA(pdate.hwndEdit, date, 15);
+
 
 			std::string q = CreateQuery(id, name, date, ADMIN_SEARCH_LOGINS_BUTTON);
 			MYSQL_RES* res = AdminQueryDB(q);
@@ -297,7 +299,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				lvI.iSubItem = 0;
 
-				wchar_t* wrow = new wchar_t;
+				wchar_t* wrow = new wchar_t[40];
 				size_t retval;
 				rsize_t dstsz = 20;
 				mbstowcs_s(&retval, wrow, dstsz, row[0], strlen(row[0]) + 1);
@@ -333,6 +335,15 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	case WM_DESTROY:
 	{
 		mysql_close(AdminConn);
+		DestroyWindow(hwnd);
+		PostQuitMessage(0);
+		return 0;
+	}
+
+	case WM_CLOSE:
+	{
+		mysql_close(AdminConn);
+		DestroyWindow(hwnd);
 		PostQuitMessage(0);
 		return 0;
 	}
