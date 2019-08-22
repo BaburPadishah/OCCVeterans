@@ -215,7 +215,7 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 			}
 			else
 			{
-				MessageBox(hwnd, L"Input not recognized.", L"Error", MB_OK);
+				MessageBox(hwnd, L"Incorrect ID format.", L"Error", MB_OK);
 			}
 		}
 

@@ -205,6 +205,8 @@ int newMember(LPSTR data)
 		NULL
 	);
 
+	EnableWindow(GetDlgItem(regWin, REG_ID_EDIT), FALSE);
+
 	if (regWin == NULL)
 	{
 		return 0;
@@ -379,9 +381,7 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if (registerMember(id, FName, LName, Branch))
 				{
-					std::string result = static_cast<std::string>(LName2) 
-						+ ", " 
-						+ static_cast<std::string>(FName2);
+					std::string result = static_cast<std::string>(LName2) + ", " + static_cast<std::string>(FName2);
 					time_t tm = time(NULL);
 					char displayTime[26];
 					ctime_s(displayTime, sizeof displayTime, &tm);
@@ -395,7 +395,7 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			else
 			{
-				MessageBox(hwnd, L"Input not recognized.", L"Error", MB_OK);
+				MessageBox(hwnd, L"Incorrect name format.", L"Error", MB_OK);
 			}
 		}
 		}

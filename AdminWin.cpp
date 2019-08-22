@@ -104,7 +104,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		{
 			ListView_DeleteAllItems(GetDlgItem(hwnd, ADMIN_MEMBER_LIST));
 			char id[9], name[80], radio[12];
-			BOOL valid = TRUE;
+			BOOL IDvalid = TRUE, nameValid = TRUE;
 
 			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) != 0) // check if ID entered
 			{
@@ -116,7 +116,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				}
 				if (*idp != id[8])
 				{
-					valid = FALSE;
+					IDvalid = FALSE;
 				}
 			}
 			else
@@ -129,13 +129,9 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				char* pname = &name[0];
 				while (*pname != '\0')
 				{
-					if (!isalpha(*pname) 
-					    && *pname != ' ' 
-					    && *pname != '-' 
-					    && *pname != ',' 
-					    && *pname != '\'')
+					if (!isalpha(*pname) && *pname != ' ' && *pname != '-' && *pname != ',' && *pname != '\'')
 					{
-						valid = FALSE;
+						nameValid = FALSE;
 					}
 					else if (*pname == '\'' && *(pname - 1) != '\'')
 					{
@@ -163,9 +159,14 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				name[0] = '\0';
 			}
 
-			if (!valid)
+			if (!IDvalid)
 			{
-				MessageBox(hwnd, L"Input not recognized.", L"Error", MB_OK);
+				MessageBox(hwnd, L"Incorrect ID format.", L"Error", MB_OK);
+				break;
+			}
+			else if (!nameValid)
+			{
+				MessageBox(hwnd, L"Incorrect name format.", L"Error", MB_OK);
 				break;
 			}
 
@@ -249,7 +250,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		{
 			ListView_DeleteAllItems(GetDlgItem(hwnd, ADMIN_LOGIN_LIST));
 			char id[9], name[80], date[16];
-			BOOL valid = TRUE;
+			BOOL IDvalid = TRUE, nameValid = TRUE;
 
 			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_ID_EDIT, id, 9) != 0) // check if ID is entered
 			{
@@ -261,7 +262,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				}
 				if (*idp != id[8])
 				{
-					valid = FALSE;
+					IDvalid = FALSE;
 				}
 			}
 			else
@@ -274,13 +275,9 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				char* pname = &name[0];
 				while (*pname != '\0')
 				{
-					if (!isalpha(*pname) 
-					    && *pname != ' ' 
-					    && *pname != '-' 
-					    && *pname != ',' 
-					    && *pname != '\'')
+					if (!isalpha(*pname) && *pname != ' ' && *pname != '-' && *pname != ',' && *pname != '\'')
 					{
-						valid = FALSE;
+						nameValid = FALSE;
 					}
 					else if (*pname == '\'' && *(pname - 1) != '\'')
 					{
@@ -308,9 +305,14 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				name[0] = '\0';
 			}
 
-			if (!valid)
+			if (!IDvalid)
 			{
-				MessageBox(hwnd, L"Input not recognized.", L"Error", MB_OK);
+				MessageBox(hwnd, L"Incorrect ID format.", L"Error", MB_OK);
+				break;
+			}
+			else if (!nameValid)
+			{
+				MessageBox(hwnd, L"Incorrect name format.", L"Error", MB_OK);
 				break;
 			}
 

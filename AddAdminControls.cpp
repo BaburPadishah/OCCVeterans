@@ -383,4 +383,10 @@ void AddAdminControls(HWND hwnd)
 		NULL,
 		NULL
 	);
+
+	DateTime_SetMonthCalStyle(
+		GetDlgItem(hwnd, DATE_PICKER),
+		MCS_MULTISELECT | MCS_NOTODAYCIRCLE
+	); // doesn't work?
+
 }
