@@ -32,8 +32,9 @@ click the "Sign-In" button.The program will notify you that your ID was
 not found, and ask you if you wish to register as a new member.
 Clicking "Yes" will display the New Member Registration window,
 where you must enter your first name, last name, and your branch.
-When you are finished, click the "Register and Sign In" button at
-the bottom of the window.
+Regrettably, names with apostrophes are not currently supported. When
+you are finished, click the "Register" button at the bottom of the window. 
+This will also count as signing in.
 
 
 -------------
@@ -53,16 +54,21 @@ if it does not.
 Enter the administrator password into the main window's text box. The 
 Member Search window will be displayed, containing two lists.
 
-     1. Member List: To the left is a list of all current members,organized 
-	alphabetically by name. By clicking the buttons at the top of the
-	list, you can choose to sort by branch or student ID.
+     1. Member List: To the left is a list of all current members, organized 
+	alphabetically by name. Enter data in the fields above to search by 
+	ID, name, branch, or any combination of those three.
      2. Records List: To the right is a list of all sign ins that have 
-	occurred in the selected time interval. Use the buttons above the
-	list to see sign ins during the past day, past week, or past month,
-	or enter your own time interval using the text box provided.
+	occurred in the selected time interval. Similar to the member
+	list, you can search by ID and/or name. To view logins on a particular
+	day, click on the date located next to "Search by Date" and select a 
+	day from the calendar. Make sure the checkbox next to the date is 
+	checked, then press the "Search Logins" button. If you don't wish to
+	search for a particular day, uncheck the checkbox.
 
-When finished searching, press the "Finish" button at the bottom of the 
-window.
+If any of the names are cut off by the column length, you can resize the 
+columns by clicking and dragging the sides of their headers to the 
+desired length. When finished searching, press the "Finish" button at the
+bottom of the window.
 
 
 -----------------------
@@ -70,4 +76,3 @@ window.
 -----------------------
 
 Type "Close" in the text box, and either press ENTER or the Sign-In button. 
-When the program asks for confirmation, click "Yes".
