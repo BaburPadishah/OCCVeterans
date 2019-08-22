@@ -1,7 +1,6 @@
 #include "header.h"
 
 MYSQL* AdminConn;
-HWND hwndDP;
 
 int AdminWin()
 {

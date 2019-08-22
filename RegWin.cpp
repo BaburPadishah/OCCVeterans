@@ -1,8 +1,6 @@
 #include "header.h"
 
-
-//connect to and query database
-std::string checkMembers(LPSTR id)
+std::string checkAdmin(LPSTR id)
 {
 	MYSQL* conn;
 	MYSQL_ROW row;
@@ -47,41 +45,68 @@ std::string checkMembers(LPSTR id)
 		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
 	}
 
-	if (result == "not found") // not an admin
+	return result;
+}
+
+//connect to and query database
+std::string checkMembers(LPSTR id)
+{
+	MYSQL* conn;
+	MYSQL_ROW row;
+	MYSQL_RES* res;
+	int qstate;
+	conn = mysql_init(0);
+
+	conn = mysql_real_connect(
+		conn,
+		"localhost",
+		"root",
+		"Garamantes45!",
+		"occ_veteran_club",
+		3306,
+		nullptr,
+		0
+	);
+
+	if (!conn)
 	{
-		//query members table
-		std::string query = "SELECT * FROM members WHERE id = "
-			+ static_cast<std::string>(id);
-		const char* q = query.c_str();
+		return "Bad Connection";
+	}
 
-		qstate = mysql_query(conn, q);
+	std::string result = "not found";
 
-		if (!qstate) // mysql_query functioned correctly
-		{
-			res = mysql_store_result(conn);
-			while (row = mysql_fetch_row(res))
-				result = row[1];
-			mysql_free_result(res);
-		}
-		else
+
+	//query members table
+	std::string query = "SELECT * FROM members WHERE id = "
+		+ static_cast<std::string>(id);
+	const char* q = query.c_str();
+
+	qstate = mysql_query(conn, q);
+
+	if (!qstate) // mysql_query functioned correctly
+	{
+		res = mysql_store_result(conn);
+		while (row = mysql_fetch_row(res))
+			result = row[1];
+		mysql_free_result(res);
+	}
+	else
+	{
+		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
+	}
+
+	if (result != "not found")  // match found
+	{
+		std::string ins = "INSERT INTO logins (id, name, date_time) VALUES ("
+			+ static_cast<std::string>(id)
+			+ ", '" + result + "', NOW())";
+
+		qstate = mysql_query(conn, ins.c_str());
+
+		if (qstate)
 		{
 			std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
 		}
-
-		if (result != "not found")
-		{
-			std::string ins = "INSERT INTO logins (id, name, date_time) VALUES ("
-				+ static_cast<std::string>(id)
-				+ ", '" + result + "', NOW())";
-
-			qstate = mysql_query(conn, ins.c_str());
-
-			if (qstate)
-			{
-				std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
-			}
-		}
-
 	}
 
 	mysql_close(conn);

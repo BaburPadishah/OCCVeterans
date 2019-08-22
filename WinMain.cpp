@@ -77,7 +77,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_COMMAND:
-		checkIdNum(hwnd, wParam);
+		if (wParam == BUTTON)
+		{
+			ShowWindow(hwnd, SW_HIDE);
+			checkIdNum(hwnd, wParam);
+			ShowWindow(hwnd, SW_SHOW);
+		}
 		return 0;
 		break;
 
@@ -111,12 +116,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 void AddControls(HWND hwnd)
 {
 	CreateWindow(L"STATIC",
-		L"Please enter your ID:",
+		L"Please enter your ID (8 numbers, no 'C'):",
 		WS_VISIBLE | WS_CHILD | SS_CENTER,
 		WIN_WIDTH / 2 - STATIC_WIDTH / 2,
 		WIN_HEIGHT / 10,
 		STATIC_WIDTH,
-		STATIC_HEIGHT,
+		STATIC_HEIGHT * 2,
 		hwnd,
 		(HMENU)STATIC,
 		NULL,
@@ -142,7 +147,7 @@ void AddControls(HWND hwnd)
 		L"",
 		WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
 		WIN_WIDTH / 2 - EDIT_WIDTH / 2,
-		WIN_HEIGHT / 4,
+		WIN_HEIGHT / 3,
 		EDIT_WIDTH,
 		EDIT_HEIGHT,
 		hwnd,
@@ -166,13 +171,14 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 		{
 			size_t len = strlen(buffer);
 			bool allDigit = true;
-			for (size_t i = 1; i < len; ++i)
+			for (size_t i = 0; i < len; ++i)
 			{
 				if (!isdigit(buffer[i]))
 				{
 					allDigit = false;
 				}
 			}
+
 			//If the user enters Close into the text field it will end the program
 			if (!strcmp("close", buffer) || !strcmp("Close", buffer) || !strcmp("CLOSE", buffer))
 			{
@@ -182,19 +188,14 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 				else
 					DestroyWindow(GetParent(hwnd));
 			}
-			else if ((len == 7 || (len == 8 && buffer[0] == '0') || (len == 9 && buffer[0] == 'C')) && allDigit) // user has entered an ID number
+			else if (checkAdmin(buffer) == "ADMIN")
 			{
-				if (len == 9)
-				{
-					++buffer; // removes 'C' at beginning of input, if user enters it
-				}
-
+				AdminWin();
+			}
+			else if (len == 8 && allDigit) // user has entered an ID number 
+			{
 				std::string result = checkMembers(buffer);
-				if (result == "ADMIN")
-				{
-					AdminWin();
-				}
-				else if (result == "not found")
+				if (result == "not found")
 				{
 					if (MessageBox(hwnd,
 						L"ID not found. Would you like to register as a new member?",
@@ -217,6 +218,8 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 				MessageBox(hwnd, L"Input not recognized.", L"Error", MB_OK);
 			}
 		}
+
+		delete[] buffer;
 	}
 }
 
