@@ -31,8 +31,7 @@ Once the program is started, enter your student ID and press ENTER or
 click the "Sign-In" button.The program will notify you that your ID was 
 not found, and ask you if you wish to register as a new member.
 Clicking "Yes" will display the New Member Registration window,
-where you must enter your first name, last name, and your branch.
-Regrettably, names with apostrophes are not currently supported. When
+where you must enter your first name, last name, and your branch. When
 you are finished, click the "Register" button at the bottom of the window. 
 This will also count as signing in.
 
