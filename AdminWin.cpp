@@ -195,13 +195,13 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				lvI.iSubItem = 0;
 
-				wchar_t* wrow = new wchar_t[40];
+				wchar_t* wrow = new wchar_t[60];
 				size_t retval;
-				rsize_t dstsz = 20;
+				rsize_t dstsz = strlen(row[0]) + 1;
 				rsize_t len = strlen(row[0]) + 1;
+				lvI.cchTextMax = len;
 				mbstowcs_s(&retval, wrow, dstsz, row[0], len);
 				LPWSTR ptr = wrow;
-				lvI.cchTextMax = len;
 				lvI.pszText = ptr;
 				ListView_InsertItem(GetDlgItem(hwnd, ADMIN_MEMBER_LIST), &lvI);
 
@@ -209,9 +209,10 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				{
 					++lvI.iSubItem;
 					rsize_t len = strlen(row[j]) + 1;
+					rsize_t dstsz = strlen(row[j]) + 1;
+					lvI.cchTextMax = len;
 					mbstowcs_s(&retval, wrow, dstsz, row[j], len);
 					ptr = wrow;
-					lvI.cchTextMax = len;
 					ListView_SetItemText(GetDlgItem(hwnd, ADMIN_MEMBER_LIST), lvI.iItem, j, ptr);
 				}
 				delete[] wrow;
@@ -311,9 +312,9 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				lvI.iSubItem = 0;
 
-				wchar_t* wrow = new wchar_t[40];
+				wchar_t* wrow = new wchar_t[60];
 				size_t retval;
-				rsize_t dstsz = 20;
+				rsize_t dstsz = strlen(row[0]) + 1;
 				mbstowcs_s(&retval, wrow, dstsz, row[0], strlen(row[0]) + 1);
 				LPWSTR ptr = wrow;
 				lvI.pszText = ptr;
@@ -323,6 +324,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				{
 					++lvI.iSubItem;
 					rsize_t len = strlen(row[j]) + 1;
+					rsize_t dstsz = strlen(row[j]) + 1;
 					mbstowcs_s(&retval, wrow, dstsz, row[j], len);
 					ptr = wrow;
 					lvI.cchTextMax = len;

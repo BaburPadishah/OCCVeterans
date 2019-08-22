@@ -352,14 +352,16 @@ void AddAdminControls(HWND hwnd)
 
 	lvc.iSubItem = 1;
 	lvc.pszText = nameHeader;
-	lvc.cx = 3 * LV_WIDTH / 8;
+	lvc.cx = LV_WIDTH / 2;
 	ListView_InsertColumn(hWndMemberList, 1, &lvc);
+	lvc.cx = 3 * LV_WIDTH / 8;
 	ListView_InsertColumn(hWndLoginList, 1, &lvc);
 
 	lvc.iSubItem = 2;
 	lvc.pszText = branchHeader;
-	lvc.cx = 3 * LV_WIDTH / 8;
+	lvc.cx = LV_WIDTH / 4;
 	ListView_InsertColumn(hWndMemberList, 2, &lvc);
+	lvc.cx = 3 * LV_WIDTH / 8;
 	lvc.pszText = dateHeader;
 	ListView_InsertColumn(hWndLoginList, 2, &lvc);
 
@@ -381,9 +383,6 @@ void AddAdminControls(HWND hwnd)
 		NULL,
 		NULL
 	);
-
-	//DateTime_SetFormat(GetDlgItem(hwnd, DATE_PICKER), L"yyyy - MM - dd");
-
 
 	DateTime_SetMonthCalStyle(
 		GetDlgItem(hwnd, DATE_PICKER),
