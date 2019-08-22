@@ -379,7 +379,9 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if (registerMember(id, FName, LName, Branch))
 				{
-					std::string result = static_cast<std::string>(LName2) + ", " + static_cast<std::string>(FName2);
+					std::string result = static_cast<std::string>(LName2) 
+						+ ", " 
+						+ static_cast<std::string>(FName2);
 					time_t tm = time(NULL);
 					char displayTime[26];
 					ctime_s(displayTime, sizeof displayTime, &tm);
