@@ -1,5 +1,12 @@
 Development Timeline (Add any new entries above the older ones)
 
+August 22nd, 2019
+	NEW FEATURES:
+		Names can now contain apostrophes
+	BUG FIXES:
+		Program no longer crashes after searching as an admin
+		Close button on admin window works again
+
 August 15th, 2019
 	BUG FIXES:
 		Member list is now sorted alphabetically by last name, login list sorted by date
