@@ -129,7 +129,11 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				char* pname = &name[0];
 				while (*pname != '\0')
 				{
-					if (!isalpha(*pname) && *pname != ' ' && *pname != '-' && *pname != ',' && *pname != '\'')
+					if (!isalpha(*pname) 
+					    && *pname != ' ' 
+					    && *pname != '-' 
+					    && *pname != ',' 
+					    && *pname != '\'')
 					{
 						valid = FALSE;
 					}
@@ -270,7 +274,11 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				char* pname = &name[0];
 				while (*pname != '\0')
 				{
-					if (!isalpha(*pname) && *pname != ' ' && *pname != '-' && *pname != ',' && *pname != '\'')
+					if (!isalpha(*pname) 
+					    && *pname != ' ' 
+					    && *pname != '-' 
+					    && *pname != ',' 
+					    && *pname != '\'')
 					{
 						valid = FALSE;
 					}
