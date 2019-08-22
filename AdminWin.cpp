@@ -104,11 +104,12 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case ADMIN_SEARCH_MEMBERS_BUTTON:
 		{
 			ListView_DeleteAllItems(GetDlgItem(hwnd, ADMIN_MEMBER_LIST));
-			char id[9], name[40], radio[12];
+			char id[9], name[80], radio[12];
 			BOOL valid = TRUE;
 
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) != 0)
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) != 0) // check if ID entered
 			{
+				//validate ID
 				char* idp = &id[0];
 				while (*idp != '\0')
 				{
@@ -123,15 +124,33 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				id[0] = '\0';
 			}
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_NAME_EDIT, name, 40) != 0)
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_NAME_EDIT, name, 80) != 0) // check if name entered
 			{
 				//validate name
 				char* pname = &name[0];
-				while (pname != '\0')
+				while (*pname != '\0')
 				{
-					if (!isalpha(*pname) && *pname != '-' && *pname != ',')
+					if (!isalpha(*pname) && *pname != ' ' && *pname != '-' && *pname != ',' && *pname != '\'')
 					{
 						valid = FALSE;
+					}
+					else if (*pname == '\'' && *(pname - 1) != '\'')
+					{
+						char* pap = pname;
+						char temp = *pap, temp2;
+						*pap = '\'';
+						++pap;
+						temp2 = *pap;
+						*pap = temp;
+						temp = temp2;
+						++pap;
+						while (*(pap - 1) != '\0')
+						{
+							temp2 = *pap;
+							*pap = temp;
+							temp = temp2;
+							++pap;
+						}
 					}
 					++pname;
 				}
@@ -147,6 +166,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				break;
 			}
 
+			//check if button checked
 			if (IsDlgButtonChecked(hwnd, AIRFORCE_RADIO) == BST_CHECKED)
 			{
 				GetDlgItemTextA(hwnd, AIRFORCE_RADIO, radio, 12);
@@ -195,7 +215,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				lvI.iSubItem = 0;
 
-				wchar_t* wrow = new wchar_t[60];
+				wchar_t* wrow = new wchar_t[80];
 				size_t retval;
 				rsize_t dstsz = strlen(row[0]) + 1;
 				rsize_t len = strlen(row[0]) + 1;
@@ -208,8 +228,8 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				for (int j = 1; j < 3; ++j)
 				{
 					++lvI.iSubItem;
-					rsize_t len = strlen(row[j]) + 1;
-					rsize_t dstsz = strlen(row[j]) + 1;
+					len = strlen(row[j]) + 1;
+					dstsz = strlen(row[j]) + 1;
 					lvI.cchTextMax = len;
 					mbstowcs_s(&retval, wrow, dstsz, row[j], len);
 					ptr = wrow;
@@ -225,11 +245,12 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case ADMIN_SEARCH_LOGINS_BUTTON:
 		{
 			ListView_DeleteAllItems(GetDlgItem(hwnd, ADMIN_LOGIN_LIST));
-			char id[9], name[40], date[16];
+			char id[9], name[80], date[16];
 			BOOL valid = TRUE;
 
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) != 0)
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_ID_EDIT, id, 9) != 0) // check if ID is entered
 			{
+				// validate ID
 				char* idp = &id[0];
 				while (*idp != '\0')
 				{
@@ -244,15 +265,33 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				id[0] = '\0';
 			}
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_NAME_EDIT, name, 40) != 0)
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_NAME_EDIT, name, 80) != 0)
 			{
 				//validate name
 				char* pname = &name[0];
-				while (pname != '\0')
+				while (*pname != '\0')
 				{
-					if (!isalpha(*pname) && *pname != '-' && *pname != ',')
+					if (!isalpha(*pname) && *pname != ' ' && *pname != '-' && *pname != ',' && *pname != '\'')
 					{
 						valid = FALSE;
+					}
+					else if (*pname == '\'' && *(pname - 1) != '\'')
+					{
+						char* pap = pname;
+						char temp = *pap, temp2;
+						*pap = '\'';
+						++pap;
+						temp2 = *pap;
+						*pap = temp;
+						temp = temp2;
+						++pap;
+						while (*(pap - 1) != '\0')
+						{
+							temp2 = *pap;
+							*pap = temp;
+							temp = temp2;
+							++pap;
+						}
 					}
 					++pname;
 				}
@@ -269,25 +308,11 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			}
 
 
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_ID_EDIT, id, 9) == 0)
-			{
-				id[0] = '\0';
-			}
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_NAME_EDIT, name, 40) == 0)
-			{
-				name[0] = '\0';
-			}
-
-
 			SYSTEMTIME st = { 0 };
 
 			DateTime_GetSystemtime(GetDlgItem(hwnd, DATE_PICKER), &st);
 
-			sprintf_s(date,
-				"%d-%02d-%02d",
-				st.wYear,
-				st.wMonth,
-				st.wDay);
+			sprintf_s(date,"%d-%02d-%02d", st.wYear, st.wMonth, st.wDay);
 			if (date[0] == '0')
 			{
 				date[0] = '\0';

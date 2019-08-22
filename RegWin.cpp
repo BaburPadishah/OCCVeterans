@@ -88,7 +88,7 @@ std::string checkMembers(LPSTR id)
 	return result;
 }
 
-std::string registerMember(LPSTR id, LPSTR FName, LPSTR LName, LPSTR Branch)
+BOOL registerMember(LPSTR id, LPSTR FName, LPSTR LName, LPSTR Branch)
 {
 	MYSQL* conn;
 	int qstate;
@@ -107,7 +107,7 @@ std::string registerMember(LPSTR id, LPSTR FName, LPSTR LName, LPSTR Branch)
 
 	if (!conn)
 	{
-		return "Bad Connection";
+		return FALSE;
 	}
 
 	std::string ins = "INSERT INTO members (id, name, branch) VALUES ("
@@ -135,7 +135,7 @@ std::string registerMember(LPSTR id, LPSTR FName, LPSTR LName, LPSTR Branch)
 	}
 
 	mysql_close(conn);
-	return static_cast<std::string>(LName) + ", " + static_cast<std::string>(FName);
+	return TRUE;
 }
 
 int newMember(LPSTR data)
@@ -285,6 +285,11 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		case REG_OK:
 		{
+			// copy before validation to correctly display result
+			char FName2[40], LName2[40];
+			strcpy_s(FName2, sizeof(FName2), FName);
+			strcpy_s(LName2, sizeof(LName2), LName);
+
 			// validate first and last names
 			char* fp = &FName[0];
 			char* lp = &LName[0];
@@ -292,35 +297,73 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			while (*fp != '\0')
 			{
-				if (!isalpha(*fp) && *fp != '-')
+				if (!isalpha(*fp) && *fp != '-' && *fp != '\'')
 				{
 					valid = FALSE;
+				}
+				else if (*fp == '\'' && *(fp - 1) != '\'')
+				{
+					char* pap = fp;
+					char temp = *pap, temp2;
+					*pap = '\'';
+					++pap;
+					temp2 = *pap;
+					*pap = temp;
+					temp = temp2;
+					++pap;
+					while (*(pap - 1) != '\0')
+					{
+						temp2 = *pap;
+						*pap = temp;
+						temp = temp2;
+						++pap;
+					}
 				}
 				++fp;
 			}
 
 			while (*lp != '\0')
 			{
-				if (!isalpha(*lp) && *lp != '-')
+				if (!isalpha(*lp) && *lp != '-' && *lp != '\'')
 				{
 					valid = FALSE;
+				}
+				else if (*lp == '\'' && *(lp - 1) != '\'')
+				{
+					char* pap = lp;
+					char temp = *pap, temp2;
+					*pap = '\'';
+					++pap;
+					temp2 = *pap;
+					*pap = temp;
+					temp = temp2;
+					++pap;
+					while (*(pap - 1) != '\0')
+					{
+						temp2 = *pap;
+						*pap = temp;
+						temp = temp2;
+						++pap;
+					}
 				}
 				++lp;
 			}
 
 			if (valid)
 			{
-				std::string result = registerMember(id, FName, LName, Branch);
+				if (registerMember(id, FName, LName, Branch))
+				{
+					std::string result = static_cast<std::string>(LName2) + ", " + static_cast<std::string>(FName2);
+					time_t tm = time(NULL);
+					char displayTime[26];
+					ctime_s(displayTime, sizeof displayTime, &tm);
+					std::string loginMessage = result + " signed in on " + displayTime;
+					MessageBoxA(hwnd, loginMessage.c_str(), result.c_str(), MB_OK);
 
-				time_t tm = time(NULL);
-				char displayTime[26];
-				ctime_s(displayTime, sizeof displayTime, &tm);
-				std::string loginMessage = result + " signed in on " + displayTime;
-				MessageBoxA(hwnd, loginMessage.c_str(), result.c_str(), MB_OK);
+					DestroyWindow(hwnd);
 
-				DestroyWindow(hwnd);
-
-				return 0;
+					return 0;
+				}
 			}
 			else
 			{
