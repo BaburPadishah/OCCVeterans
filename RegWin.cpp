@@ -27,8 +27,9 @@ std::string checkAdmin(LPSTR id)
 	std::string result = "not found";
 
 	//query admin table
-	std::string query = "SELECT * FROM admin WHERE id = "
-		+ static_cast<std::string>(id);
+	std::string query = "SELECT * FROM admin WHERE id = '"
+		+ static_cast<std::string>(id)
+		+ "'";
 	const char* q = query.c_str();
 
 	qstate = mysql_query(conn, q);
