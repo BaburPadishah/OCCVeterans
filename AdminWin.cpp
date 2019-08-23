@@ -1,8 +1,6 @@
 #include "header.h"
 
-MYSQL* AdminConn;
-
-int AdminWin()
+int adminWin()
 {
 	// Window Class Registration
 	const wchar_t ADMIN_CLASS_NAME[] = L"Search Records";
@@ -35,28 +33,6 @@ int AdminWin()
 		return 0;
 	}
 
-	AdminConn = mysql_init(0);
-	AdminConn = mysql_real_connect(
-		AdminConn,
-		"localhost",
-		"root",
-		"Garamantes45!",
-		"occ_veteran_club",
-		3306,
-		nullptr,
-		0
-	);
-
-	if (AdminConn)
-	{
-		std::cout << "Connection success" << std::endl;
-	}
-	else
-	{
-		std::cerr << "Connection failed: " << mysql_error(AdminConn) << std::endl;
-		return 0;
-	}
-
 	// Display Window
 	ShowWindow(hwnd, SW_SHOW);
 
@@ -71,13 +47,14 @@ int AdminWin()
 	return 0;
 }
 
-LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+	LPARAM lParam)
 {
 	switch (uMsg)
 	{
 	case WM_CREATE:
 	{
-		AddAdminControls(hwnd);
+		addAdminControls(hwnd);
 		break;
 	}
 
@@ -106,7 +83,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			char id[9], name[80], radio[12];
 			BOOL IDvalid = TRUE, nameValid = TRUE;
 
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) != 0) // check if ID entered
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT, id, 9) != 0)
 			{
 				//validate ID
 				char* idp = &id[0];
@@ -123,13 +100,17 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			{
 				id[0] = '\0';
 			}
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_NAME_EDIT, name, 80) != 0) // check if name entered
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_MEMBERS_NAME_EDIT, name, 80) != 0)
 			{
 				//validate name
 				char* pname = &name[0];
 				while (*pname != '\0')
 				{
-					if (!isalpha(*pname) && *pname != ' ' && *pname != '-' && *pname != ',' && *pname != '\'')
+					if (!isalpha(*pname) 
+						&& *pname != ' ' 
+						&& *pname != '-' 
+						&& *pname != ',' 
+						&& *pname != '\'')
 					{
 						nameValid = FALSE;
 					}
@@ -200,8 +181,9 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				radio[0] = '\0';
 			}
 
-			std::string q = CreateQuery(id, name, radio, ADMIN_SEARCH_MEMBERS_BUTTON);
-			MYSQL_RES* res = AdminQueryDB(q);
+			std::string q = createQuery(id,
+				name, radio, ADMIN_SEARCH_MEMBERS_BUTTON);
+			MYSQL_RES* res = adminQueryDB(q);
 			MYSQL_ROW row;
 
 			LVITEM lvI;
@@ -237,7 +219,8 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 					lvI.cchTextMax = len;
 					mbstowcs_s(&retval, wrow, dstsz, row[j], len);
 					ptr = wrow;
-					ListView_SetItemText(GetDlgItem(hwnd, ADMIN_MEMBER_LIST), lvI.iItem, j, ptr);
+					ListView_SetItemText(GetDlgItem(hwnd, ADMIN_MEMBER_LIST), 
+						lvI.iItem, j, ptr);
 				}
 				delete[] wrow;
 				++lvI.iItem;
@@ -252,7 +235,7 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			char id[9], name[80], date[16];
 			BOOL IDvalid = TRUE, nameValid = TRUE;
 
-			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_ID_EDIT, id, 9) != 0) // check if ID is entered
+			if (GetDlgItemTextA(hwnd, ADMIN_SEARCH_LOGINS_ID_EDIT, id, 9) != 0)
 			{
 				// validate ID
 				char* idp = &id[0];
@@ -275,7 +258,11 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				char* pname = &name[0];
 				while (*pname != '\0')
 				{
-					if (!isalpha(*pname) && *pname != ' ' && *pname != '-' && *pname != ',' && *pname != '\'')
+					if (!isalpha(*pname) 
+						&& *pname != ' ' 
+						&& *pname != '-' 
+						&& *pname != ',' 
+						&& *pname != '\'')
 					{
 						nameValid = FALSE;
 					}
@@ -327,8 +314,9 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 				date[0] = '\0';
 			}
 
-			std::string q = CreateQuery(id, name, date, ADMIN_SEARCH_LOGINS_BUTTON);
-			MYSQL_RES* res = AdminQueryDB(q);
+			std::string q = createQuery(id, name, date,
+				ADMIN_SEARCH_LOGINS_BUTTON);
+			MYSQL_RES* res = adminQueryDB(q);
 			MYSQL_ROW row;
 
 			LVITEM lvI;
@@ -362,7 +350,8 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 					mbstowcs_s(&retval, wrow, dstsz, row[j], len);
 					ptr = wrow;
 					lvI.cchTextMax = len;
-					ListView_SetItemText(GetDlgItem(hwnd, ADMIN_LOGIN_LIST), lvI.iItem, j, ptr);
+					ListView_SetItemText(GetDlgItem(hwnd, ADMIN_LOGIN_LIST), 
+						lvI.iItem, j, ptr);
 				}
 				delete[] wrow;
 				++lvI.iItem;
@@ -382,7 +371,6 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 	case WM_DESTROY:
 	{
-		mysql_close(AdminConn);
 		PostQuitMessage(0);
 		return 0;
 	}
@@ -398,120 +386,3 @@ LRESULT CALLBACK AdminWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
-
-
-std::string CreateQuery(LPSTR id, LPSTR name, LPSTR buttontxt, int CTRL_ID)
-{
-	std::string table;
-	if (CTRL_ID == ADMIN_SEARCH_MEMBERS_BUTTON)
-	{
-		table = "members";
-	}
-	else if (CTRL_ID == ADMIN_SEARCH_LOGINS_BUTTON)
-	{
-		table = "logins";
-	}
-	else
-	{
-		return "error";
-	}
-
-	bool idFilled = strcmp("", id);
-	bool nameFilled = strcmp("", name);
-	bool buttonFilled = strcmp("", buttontxt);
-
-	std::string q = "SELECT * FROM " + table;
-	std::string idVal;
-	std::string nameVal;
-	std::string buttonVal;
-
-	if (idFilled || nameFilled || buttonFilled) // at least one input field is filled
-	{
-		q += " WHERE ";
-		if (idFilled)
-		{
-			idVal = "id = " + static_cast<std::string>(id);
-		}
-		if (nameFilled)
-		{
-			nameVal = "name = '" + static_cast<std::string>(name) + "'";
-		}	
-		if (buttonFilled)	
-		{
-			if (table == "members")
-			{
-				buttonVal = "branch = '" + static_cast<std::string>(buttontxt) + "'";
-			}
-			else
-			{
-				buttonVal = "date_time >= '" 
-					+ static_cast<std::string>(buttontxt) 
-					+ "'" " AND " 
-					+ "date_time <= '" 
-					+ static_cast<std::string>(buttontxt) 
-					+ " 23:59:59'";
-			}
-		}
-
-		if (!idFilled && !nameFilled && buttonFilled)
-		{
-			q += buttonVal;
-		}
-		else if (!idFilled && nameFilled && !buttonFilled)
-		{
-			q += nameVal;
-		}
-		else if (!idFilled && nameFilled && buttonFilled)
-		{
-			q += nameVal + " AND " + buttonVal;
-		}
-		else if (idFilled && !nameFilled && !buttonFilled)
-		{
-			q += idVal;
-		}
-		else if (idFilled && !nameFilled && buttonFilled)
-		{
-			q += idVal + " AND " + buttonVal;
-		}
-		else if (idFilled && nameFilled && !buttonFilled)
-		{
-			q += idVal + " AND " + nameVal;
-		}
-		else if (idFilled && nameFilled && buttonFilled)
-		{
-			q += idVal + " AND " + nameVal + " AND " + buttonVal;
-		}
-	}
-
-	if (table == "logins")
-	{
-		q += " ORDER BY date_time DESC";
-	}
-	else
-	{
-		q += " ORDER BY name ASC";
-	}
-
-	return q;
-}
-
-MYSQL_RES* AdminQueryDB(std::string query)
-{
-	const char* q = query.c_str();
-	MYSQL_RES* res;
-	int qstate;
-
-	qstate = mysql_query(AdminConn, q);
-
-	if (!qstate) // mysql_query functioned correctly
-	{
-		res = mysql_store_result(AdminConn);
-		return res;
-	}
-	else
-	{
-		std::cerr << "Query failed: " << mysql_error(AdminConn) << std::endl;
-		return NULL;
-	}
-}
-

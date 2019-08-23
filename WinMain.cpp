@@ -59,7 +59,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 	{
-		AddControls(hwnd);
+		addControls(hwnd);
 		break;
 	}
 
@@ -87,7 +87,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_CLOSE:
-		if (MessageBox(hwnd, L"Are you sure you want to quit?", L"Sign-in", MB_OKCANCEL) == IDOK)
+		if (MessageBox(hwnd, L"Are you sure you want to quit?",
+			L"Sign-in", MB_OKCANCEL) == IDOK)
 		{
 			DestroyWindow(hwnd);
 		}
@@ -113,7 +114,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 // Adds button and static/edit controls
-void AddControls(HWND hwnd)
+void addControls(HWND hwnd)
 {
 	CreateWindow(L"STATIC",
 		L"Please enter your ID (8 numbers, no 'C'):",
@@ -156,7 +157,8 @@ void AddControls(HWND hwnd)
 		NULL
 	);
 
-	wpOrigEditProc = (WNDPROC)SetWindowLongPtr(hEdit, GWLP_WNDPROC, (LONG_PTR)EditSubclassProc);
+	wpOrigEditProc = (WNDPROC)SetWindowLongPtr(hEdit, GWLP_WNDPROC,
+		(LONG_PTR)EditSubclassProc);
 }
 
 //Verifies that the ID number given is a valid one
@@ -180,7 +182,9 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 			}
 
 			//If the user enters Close into the text field it will end the program
-			if (!strcmp("close", buffer) || !strcmp("Close", buffer) || !strcmp("CLOSE", buffer))
+			if (!strcmp("close", buffer) 
+				|| !strcmp("Close", buffer) 
+				|| !strcmp("CLOSE", buffer))
 			{
 				//checks if the current handle window is the main, then destroys it
 				if (GetParent(hwnd) == NULL)
@@ -190,9 +194,9 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 			}
 			else if (checkAdmin(buffer) == "ADMIN")
 			{
-				AdminWin();
+				adminWin();
 			}
-			else if (len == 8 && allDigit) // user has entered an ID number 
+			else if (len == 8 && allDigit) // user has entered an ID number
 			{
 				std::string result = checkMembers(buffer);
 				if (result == "not found")
@@ -201,7 +205,7 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 						L"ID not found. Would you like to register as a new member?",
 						L"New Member", MB_YESNO | MB_ICONEXCLAMATION) == IDYES)
 					{
-						newMember(buffer);
+						regWin(buffer);
 					}
 				}
 				else
@@ -209,8 +213,10 @@ void checkIdNum(HWND hwnd, WPARAM wParam)
 					time_t tm = time(NULL);
 					char displayTime[26];
 					ctime_s(displayTime, sizeof displayTime, &tm);
-					std::string loginMessage = result + " signed in on " + displayTime;
-					MessageBoxA(hwnd, loginMessage.c_str(), result.c_str(), MB_OK);
+					std::string loginMessage = result 
+						+ " signed in on " + displayTime;
+					MessageBoxA(hwnd, loginMessage.c_str(), 
+						result.c_str(), MB_OK);
 				}
 			}
 			else

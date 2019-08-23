@@ -1,6 +1,6 @@
 #include "header.h"
 
-void AddRegControls(HWND parent)
+void addRegControls(HWND parent)
 {
 	// Three static fields: ID, name, branch
 	CreateWindow(L"STATIC",
@@ -56,7 +56,6 @@ void AddRegControls(HWND parent)
 	);
 
 	// Three edit fields: ID (filled by buffer), first name, last name
-
 	CreateWindow(
 		L"EDIT",
 		L"",
@@ -86,7 +85,6 @@ void AddRegControls(HWND parent)
 	);
 
 	// Five radio buttons: Army, Navy, Air Force, Marines, Coast Guard
-
 	// Create Air Force radio button
 	CreateWindowEx(
 		WS_EX_WINDOWEDGE,
@@ -169,7 +167,6 @@ void AddRegControls(HWND parent)
 	);
 
 	// Two buttons: Register, Cancel
-
 	CreateWindowEx(
 		WS_EX_LEFT,
 		L"BUTTON",
@@ -185,7 +182,6 @@ void AddRegControls(HWND parent)
 		NULL
 	);
 
-	// Create button
 	CreateWindowEx(
 		WS_EX_LEFT,
 		L"BUTTON",

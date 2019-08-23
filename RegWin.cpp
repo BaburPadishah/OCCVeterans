@@ -1,170 +1,6 @@
 #include "header.h"
 
-std::string checkAdmin(LPSTR id)
-{
-	MYSQL* conn;
-	MYSQL_ROW row;
-	MYSQL_RES* res;
-	int qstate;
-	conn = mysql_init(0);
-
-	conn = mysql_real_connect(
-		conn,
-		"localhost",
-		"root",
-		"Garamantes45!",
-		"occ_veteran_club",
-		3306,
-		nullptr,
-		0
-	);
-
-	if (!conn)
-	{
-		return "Bad Connection";
-	}
-
-	std::string result = "not found";
-
-	//query admin table
-	std::string query = "SELECT * FROM admin WHERE id = '"
-		+ static_cast<std::string>(id)
-		+ "'";
-	const char* q = query.c_str();
-
-	qstate = mysql_query(conn, q);
-
-	if (!qstate) // mysql_query functioned correctly
-	{
-		res = mysql_store_result(conn);
-		while (row = mysql_fetch_row(res))
-			result = row[1];
-		mysql_free_result(res);
-	}
-	else
-	{
-		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
-	}
-
-	return result;
-}
-
-//connect to and query database
-std::string checkMembers(LPSTR id)
-{
-	MYSQL* conn;
-	MYSQL_ROW row;
-	MYSQL_RES* res;
-	int qstate;
-	conn = mysql_init(0);
-
-	conn = mysql_real_connect(
-		conn,
-		"localhost",
-		"root",
-		"Garamantes45!",
-		"occ_veteran_club",
-		3306,
-		nullptr,
-		0
-	);
-
-	if (!conn)
-	{
-		return "Bad Connection";
-	}
-
-	std::string result = "not found";
-
-
-	//query members table
-	std::string query = "SELECT * FROM members WHERE id = "
-		+ static_cast<std::string>(id);
-	const char* q = query.c_str();
-
-	qstate = mysql_query(conn, q);
-
-	if (!qstate) // mysql_query functioned correctly
-	{
-		res = mysql_store_result(conn);
-		while (row = mysql_fetch_row(res))
-			result = row[1];
-		mysql_free_result(res);
-	}
-	else
-	{
-		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
-	}
-
-	if (result != "not found")  // match found
-	{
-		std::string ins = "INSERT INTO logins (id, name, date_time) VALUES ("
-			+ static_cast<std::string>(id)
-			+ ", '" + result + "', NOW())";
-
-		qstate = mysql_query(conn, ins.c_str());
-
-		if (qstate)
-		{
-			std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
-		}
-	}
-
-	mysql_close(conn);
-	return result;
-}
-
-BOOL registerMember(LPSTR id, LPSTR FName, LPSTR LName, LPSTR Branch)
-{
-	MYSQL* conn;
-	int qstate;
-	conn = mysql_init(0);
-
-	conn = mysql_real_connect(
-		conn,
-		"localhost",
-		"root",
-		"Garamantes45!",
-		"occ_veteran_club",
-		3306,
-		nullptr,
-		0
-	);
-
-	if (!conn)
-	{
-		return FALSE;
-	}
-
-	std::string ins = "INSERT INTO members (id, name, branch) VALUES ("
-		+ static_cast<std::string>(id)
-		+ ", '" + static_cast<std::string>(LName) + ", " + static_cast<std::string>(FName) + "', '"
-		+ static_cast<std::string>(Branch) + "')";
-
-	qstate = mysql_query(conn, ins.c_str());
-
-	if (qstate)
-	{
-		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
-	}
-
-	std::string insLog = "INSERT INTO logins (id, name, date_time) VALUES ("
-		+ static_cast<std::string>(id) + ", '"
-		+ static_cast<std::string>(LName) + ", " + static_cast<std::string>(FName)
-		+ "', NOW())";
-
-	qstate = mysql_query(conn, insLog.c_str());
-
-	if (qstate)
-	{
-		std::cerr << "Query failed: " << mysql_error(conn) << std::endl;
-	}
-
-	mysql_close(conn);
-	return TRUE;
-}
-
-int newMember(LPSTR data)
+int regWin(LPSTR data)
 {
 	// Window Class Registration
 	const wchar_t CHILD_CLASS_NAME[] = L"New Member Registration";
@@ -234,7 +70,7 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 	case WM_CREATE:
-		AddRegControls(hwnd);
+		addRegControls(hwnd);
 		EnableWindow(GetDlgItem(hwnd, REG_OK), FALSE);
 		return 0;
 		break;
@@ -264,36 +100,36 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_COMMAND:
 	{
-		char id[9], FName[40], LName[40], Branch[12];
+		char id[9], fName[40], lName[40], branch[12];
 		BOOL filled = FALSE;
 
 		if (GetDlgItemTextA(hwnd, REG_ID_EDIT, id, 9) != 0
-			&& GetDlgItemTextA(hwnd, REG_FNAME_EDIT, FName, 40) != 0
-			&& GetDlgItemTextA(hwnd, REG_LNAME_EDIT, LName, 40) != 0)
+			&& GetDlgItemTextA(hwnd, REG_FNAME_EDIT, fName, 40) != 0
+			&& GetDlgItemTextA(hwnd, REG_LNAME_EDIT, lName, 40) != 0)
 		{
 			if (IsDlgButtonChecked(hwnd, AIRFORCE_RADIO) == BST_CHECKED)
 			{
-				GetDlgItemTextA(hwnd, AIRFORCE_RADIO, Branch, 12);
+				GetDlgItemTextA(hwnd, AIRFORCE_RADIO, branch, 12);
 				filled = TRUE;
 			}
 			else if (IsDlgButtonChecked(hwnd, ARMY_RADIO) == BST_CHECKED)
 			{
-				GetDlgItemTextA(hwnd, ARMY_RADIO, Branch, 12);
+				GetDlgItemTextA(hwnd, ARMY_RADIO, branch, 12);
 				filled = TRUE;
 			}
 			else if (IsDlgButtonChecked(hwnd, COASTGUARD_RADIO) == BST_CHECKED)
 			{
-				GetDlgItemTextA(hwnd, COASTGUARD_RADIO, Branch, 12);
+				GetDlgItemTextA(hwnd, COASTGUARD_RADIO, branch, 12);
 				filled = TRUE;
 			}
 			else if (IsDlgButtonChecked(hwnd, NAVY_RADIO) == BST_CHECKED)
 			{
-				GetDlgItemTextA(hwnd, NAVY_RADIO, Branch, 12);
+				GetDlgItemTextA(hwnd, NAVY_RADIO, branch, 12);
 				filled = TRUE;
 			}
 			else if (IsDlgButtonChecked(hwnd, MARINES_RADIO) == BST_CHECKED)
 			{
-				GetDlgItemTextA(hwnd, MARINES_RADIO, Branch, 12);
+				GetDlgItemTextA(hwnd, MARINES_RADIO, branch, 12);
 				filled = TRUE;
 			}
 		}
@@ -314,13 +150,13 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case REG_OK:
 		{
 			// copy before validation to correctly display result
-			char FName2[40], LName2[40];
-			strcpy_s(FName2, sizeof(FName2), FName);
-			strcpy_s(LName2, sizeof(LName2), LName);
+			char fNameCpy[40], lNameCpy[40];
+			strcpy_s(fNameCpy, sizeof(fNameCpy), fName);
+			strcpy_s(lNameCpy, sizeof(lNameCpy), lName);
 
 			// validate first and last names
-			char* fp = &FName[0];
-			char* lp = &LName[0];
+			char* fp = &fName[0];
+			char* lp = &lName[0];
 			BOOL valid = TRUE;
 
 			while (*fp != '\0')
@@ -379,14 +215,18 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			if (valid)
 			{
-				if (registerMember(id, FName, LName, Branch))
+				if (registerMember(id, fName, lName, branch))
 				{
-					std::string result = static_cast<std::string>(LName2) + ", " + static_cast<std::string>(FName2);
+					std::string result = static_cast<std::string>(lNameCpy)
+						+ ", " 
+						+ static_cast<std::string>(fNameCpy);
 					time_t tm = time(NULL);
 					char displayTime[26];
 					ctime_s(displayTime, sizeof displayTime, &tm);
-					std::string loginMessage = result + " signed in on " + displayTime;
-					MessageBoxA(hwnd, loginMessage.c_str(), result.c_str(), MB_OK);
+					std::string loginMessage = result 
+						+ " signed in on " + displayTime;
+					MessageBoxA(hwnd, loginMessage.c_str(),
+						result.c_str(), MB_OK);
 
 					DestroyWindow(hwnd);
 
@@ -401,7 +241,5 @@ LRESULT CALLBACK RegWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	}
-
-
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }

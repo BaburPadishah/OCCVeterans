@@ -1,6 +1,6 @@
 #include "header.h"
 
-void AddAdminControls(HWND hwnd)
+void addAdminControls(HWND hwnd)
 {
 	CreateWindow(L"STATIC",
 		L"Member List",
@@ -94,7 +94,11 @@ void AddAdminControls(HWND hwnd)
 		NULL
 	);
 
-	PostMessage(GetDlgItem(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT), EM_LIMITTEXT, 8, 0);
+	PostMessage(GetDlgItem(hwnd, ADMIN_SEARCH_MEMBERS_ID_EDIT), 
+		EM_LIMITTEXT, 
+		8, 
+		0
+	);
 
 	CreateWindow(L"EDIT",
 		L"",
@@ -117,7 +121,7 @@ void AddAdminControls(HWND hwnd)
 		| WS_TABSTOP | WS_GROUP,
 		ADMIN_WIDTH / 4 + 5,
 		ADMIN_HEIGHT / 60 + 90,
-		100,
+		RADIO_WIDTH,
 		EDIT_HEIGHT,
 		hwnd,
 		(HMENU)AIRFORCE_RADIO,
@@ -133,7 +137,7 @@ void AddAdminControls(HWND hwnd)
 		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 		ADMIN_WIDTH / 4 + 5,
 		ADMIN_HEIGHT / 60 + 110,
-		100,
+		RADIO_WIDTH,
 		EDIT_HEIGHT,
 		hwnd,
 		(HMENU)ARMY_RADIO,
@@ -149,7 +153,7 @@ void AddAdminControls(HWND hwnd)
 		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 		ADMIN_WIDTH / 4 + 5,
 		ADMIN_HEIGHT / 60 + 130,
-		100,
+		RADIO_WIDTH,
 		EDIT_HEIGHT,
 		hwnd,
 		(HMENU)COASTGUARD_RADIO,
@@ -165,7 +169,7 @@ void AddAdminControls(HWND hwnd)
 		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 		ADMIN_WIDTH / 4 + 115,
 		ADMIN_HEIGHT / 60 + 90,
-		100,
+		RADIO_WIDTH,
 		EDIT_HEIGHT,
 		hwnd,
 		(HMENU)MARINES_RADIO,
@@ -181,7 +185,7 @@ void AddAdminControls(HWND hwnd)
 		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 		ADMIN_WIDTH / 4 + 115,
 		ADMIN_HEIGHT / 60 + 110,
-		100,
+		RADIO_WIDTH,
 		EDIT_HEIGHT,
 		hwnd,
 		(HMENU)NAVY_RADIO,
@@ -196,7 +200,7 @@ void AddAdminControls(HWND hwnd)
 		WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 		ADMIN_WIDTH / 4 + 115,
 		ADMIN_HEIGHT / 60 + 130,
-		100,
+		RADIO_WIDTH,
 		EDIT_HEIGHT,
 		hwnd,
 		(HMENU)ALL_BRANCH_RADIO,
@@ -284,7 +288,11 @@ void AddAdminControls(HWND hwnd)
 		NULL
 	);
 
-	PostMessage(GetDlgItem(hwnd, ADMIN_SEARCH_LOGINS_ID_EDIT), EM_LIMITTEXT, 8, 0);
+	PostMessage(GetDlgItem(hwnd, ADMIN_SEARCH_LOGINS_ID_EDIT),
+		EM_LIMITTEXT,
+		8,
+		0
+	);
 
 	CreateWindow(L"EDIT",
 		L"",
@@ -373,20 +381,14 @@ void AddAdminControls(HWND hwnd)
 		0,
 		DATETIMEPICK_CLASS,
 		TEXT("DateTime"),
-		WS_BORDER | WS_CHILD | WS_VISIBLE | DTS_APPCANPARSE | DTS_SHOWNONE,
+		WS_BORDER | WS_CHILD | WS_VISIBLE | DTS_SHOWNONE,
 		3 * ADMIN_WIDTH / 4 + 5,
 		ADMIN_HEIGHT / 60 + 90,
-		110,
+		EDIT_WIDTH - 30,
 		EDIT_HEIGHT + 5,
 		hwnd,
 		(HMENU)DATE_PICKER,
 		NULL,
 		NULL
 	);
-
-	DateTime_SetMonthCalStyle(
-		GetDlgItem(hwnd, DATE_PICKER),
-		MCS_MULTISELECT | MCS_NOTODAYCIRCLE
-	); // doesn't work?
-
 }
