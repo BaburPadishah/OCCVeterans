@@ -31,9 +31,10 @@ Once the program is started, enter your student ID and press ENTER or
 click the "Sign-In" button.The program will notify you that your ID was 
 not found, and ask you if you wish to register as a new member.
 Clicking "Yes" will display the New Member Registration window,
-where you must enter your first name, last name, and your branch. When
-you are finished, click the "Register" button at the bottom of the window. 
-This will also count as signing in.
+where you must enter your first name, last name, and your branch. Please
+note that while hyphens and apostrophes in names are supported, diacritic
+marks are not. When you are finished, click the "Register" button at the
+bottom of the window. This will also count as signing in.
 
 
 -------------
@@ -55,7 +56,9 @@ Member Search window will be displayed, containing two lists.
 
      1. Member List: To the left is a list of all current members, organized 
 	alphabetically by name. Enter data in the fields above to search by 
-	ID, name, branch, or any combination of those three.
+	ID, name, branch, or any combination of those three.  Please note 
+	that while hyphens and apostrophes in names are supported, diacritic 
+	marks are not.
      2. Records List: To the right is a list of all sign ins that have 
 	occurred in the selected time interval. Similar to the member
 	list, you can search by ID and/or name. To view logins on a particular
