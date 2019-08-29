@@ -28,13 +28,15 @@ The main window will be displayed, which contains:
 -----------------------
 
 Once the program is started, enter your student ID and press ENTER or
-click the "Sign-In" button.The program will notify you that your ID was 
+click the "Sign-In" button. The program will notify you that your ID was 
 not found, and ask you if you wish to register as a new member.
 Clicking "Yes" will display the New Member Registration window,
-where you must enter your first name, last name, and your branch. Please
-note that while hyphens and apostrophes in names are supported, diacritic
+where you must enter your first name, last name, and your branch. 
+While hyphens and apostrophes in names are supported, diacritic
 marks are not. When you are finished, click the "Register" button at the
-bottom of the window. This will also count as signing in.
+bottom of the window. Please note that you will not be able to click the 
+"Register" button until you have entered your data. This will also count
+as signing in.
 
 
 -------------
