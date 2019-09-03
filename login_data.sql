@@ -18,3 +18,7 @@ CREATE TABLE IF NOT EXISTS admin(
 	id VARCHAR(15) NOT NULL,
 	name VARCHAR(5)
 	);
+
+REPLACE INTO admin
+SET id = 'Got your 6',
+name = 'ADMIN';
