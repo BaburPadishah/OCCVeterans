@@ -8,7 +8,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
 	_In_ PWSTR pCmdLine, _In_ int nCmdShow)
 {
 	// Window Class Registration
-	const wchar_t CLASS_NAME[] = L"OCC Student Veterans Association Sign-In";
+	const wchar_t CLASS_NAME[] = L"OCC Student Veterans of America Sign-In";
 
 	WNDCLASS wc = { };
 
@@ -22,7 +22,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE,
 	HWND hwnd = CreateWindowEx(
 		0,
 		CLASS_NAME,
-		L"OCC Student Veterans Association Sign-In",
+		L"OCC Student Veterans of America Sign-In",
 		NULL,
 		SCREEN_W / 2 - WIN_WIDTH / 2,
 		SCREEN_H / 2 - WIN_HEIGHT / 2,
